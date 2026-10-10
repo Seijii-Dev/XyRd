@@ -1,0 +1,3 @@
+import Image from "next/image";
+const brands=[{name:"GitHub Actions",icon:"actions"},{name:"GitHub",icon:"github"},{name:"Runner",icon:"runner"},{name:"XyVerse Technology Global",icon:null}];
+export default function BrandSlider(){return <section className="brand-section" aria-label="Teknologi RdpFree"><div className="brand-window"><div className="brand-track">{[0,1].map(copy=><div className="brand-group" key={copy} aria-hidden={copy===1?true:undefined}>{brands.map(brand=><div className="brand-tile" key={brand.name}>{brand.icon&&<Image src={'/brands/'+brand.icon+'.svg'} alt="" width={34} height={34} loading="eager" unoptimized/>}<strong>{brand.name}</strong></div>)}</div>)}</div></div></section>}
