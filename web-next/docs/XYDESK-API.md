@@ -52,7 +52,7 @@ RDP_PASSWORD is a GitHub Actions secret and **cannot be retrieved**. Prompt for 
 ## Settings
 
 Fields mirror `.github/workflows/rdp-6h.yml`:
-`durasi_menit`, `hostname`, `rdp_user`, `akses`, `tunnel_provider`, `storage_boost`, `debloat`, `samp`, `samp_extra`, `gta_sa_url`, `win10`, `xydesk`, `ekstra`, `grafis`, `wallpaper_url`.
+`durasi_menit`, `hostname`, `rdp_user`, `akses`, `tunnel_provider`, `storage_boost`, `debloat`, `samp`, `samp_extra`, `gta_sa_url`, `win11`, `xydesk`, `ekstra`, `grafis`, `wallpaper_url`.
 
 Get allowed choice values from `/settings`, do not invent input names. Default user `xyadmin`; optional `runneradmin` is accepted. Workflow job timeout is 360 minutes including setup, so a requested 360-minute session is not a guarantee of 360 minutes of usable desktop time. Settings do not alter already running jobs.
 
@@ -94,13 +94,13 @@ Status optionally includes `games`, `media`, `game_environment` only for the mat
 Dispatch checks workflow schema 2 and returns 409 for old source. Repository owners must update workflow, scripts and assets manually; Contents read permission is intentionally insufficient to do it silently. No password/Base64 credential artifacts or logs are produced by the new workflow.
 
 
-## Onboarding dan hapus repository (2026-10-10)
+## Onboarding and repository deletion (2026-10-10)
 
-Urutan pengguna: login identitas → buat repo dari template → izinkan GitHub App mengakses repo tersebut → pilih repo → isi secrets → mulai sesi. Tombol “Repo saya sudah dibuat” hanya navigasi panduan, bukan verifikasi server. Pemilihan repo memverifikasi workflow melalui GitHub.
+User sequence: identity login → create repo from template → allow the GitHub App to access that repo → choose repo → fill secrets → start session. The "My repo has been created" button only navigates the guide, not server verification. Repository selection verifies the workflow via GitHub.
 
-Fitur hapus tersedia di `/dashboard/connection` untuk sesi browser pemilik repository akun pribadi, bukan login admin layanan atau token XyDesk. Konfirmasi server berlaku 5 menit, terikat subject + repo + ID GitHub, sekali pakai; pengguna wajib mengetik nama lengkap dan menyetujui dampaknya. Workflow aktif/antre memblokir hapus. Repo sumber layanan dilindungi. Setelah GitHub mengonfirmasi penghapusan, mapping, settings, vault repo dan semua token XyDesk pengguna dibersihkan; login/App installation tetap ada. Tidak ada repository nyata yang dihapus selama pengujian; tes destructive API menggunakan mock.
+Delete feature is available at `/dashboard/connection` for the browser session of the personal-account repository owner, not for service admin login or XyDesk tokens. Server confirmation is valid for 5 minutes, bound to subject + repo + GitHub ID, single-use; the user must type the full name and agree to the impact. Active/queued workflows block deletion. Service source repositories are protected. After GitHub confirms deletion, mapping, settings, repo vault and all of the user's XyDesk tokens are cleaned up; login/App installation remains. No real repositories are deleted during testing; destructive API tests use mocks.
 
-**Perubahan izin:** keterangan lama “tidak meminta Administration” berlaku untuk versi sebelum fitur hapus. Manifest baru meminta Administration write selain izin sebelumnya. Untuk App yang sudah terdaftar, owner harus menambahkan Administration: Read and write di Permissions & events, lalu pemilik instalasi menyetujui pembaruannya. GitHub tidak menyediakan izin delete-only; Administration mencakup kewenangan pengelolaan repo lain juga. Gunakan Only select repositories. Token operasi biasa tetap hanya Contents/Metadata read, Actions/Secrets write; Administration hanya diminta pada token sementara yang dibatasi ke satu repo saat operasi hapus dan dicabut sesudahnya. Contents tetap read: fitur ini tidak menambah kemampuan menulis source.
+Permission change: the old note "does not request Administration" applied to versions before the delete feature. The new manifest requests Administration write in addition to previous permissions. For already-registered Apps, the owner must add Administration: Read and write in Permissions & events, then the installation owner approves the update. GitHub does not provide delete-only permission; Administration includes authority to manage other repos as well. Use Only select repositories. Regular operation tokens still only have Contents/Metadata read, Actions/Secrets write; Administration is only requested for a temporary token restricted to one repo during the delete operation and revoked afterward. Contents remains read: this feature does not add source write capability.
 
 ### Schema 3 / automatic XyVerse wallpaper
 

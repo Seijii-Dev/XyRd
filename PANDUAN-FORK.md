@@ -1,13 +1,13 @@
-# Membuat atau memperbarui repository RdpFree
+# Creating or updating a RdpFree repository
 
-Credit: KallAncrit. Ikuti [README aktif](README.md).
+Credit: KallAncrit. Follow the active [README](README.md).
 
-1. Gunakan template `xykal/XyRDP` dengan nama repository pilihanmu.
-2. Aktifkan Actions, lalu isi `RDP_PASSWORD` dan `TAILSCALE_AUTH_KEY` di Actions secrets atau melalui Setup dashboard.
-3. Akses hanya Tailscale. Login HP/PC ke tailnet yang sama dan izinkan TCP 3389 pada ACL tailnet.
-4. Pilih pengaturan dan mulai sesi. Jangan mencetak atau menyimpan password sebagai artefak publik.
-5. Untuk persiapan game, gunakan mesin Windows self-hosted khusus/disposable yang diizinkan, bukan GitHub-hosted gaming. Pastikan label runner `self-hosted`, `Windows`, `X64`, `rdpfree` dan baca efek perubahan sistem di README.
+1. Use the `xykal/XyRDP` template with your chosen repository name.
+2. Enable Actions, then set `RDP_PASSWORD` and `TAILSCALE_AUTH_KEY` in Actions secrets or via the Setup dashboard.
+3. Access only via Tailscale. Sign your phone/PC into the same tailnet and allow TCP 3389 in the tailnet ACL.
+4. Choose settings and start a session. Do not print or save the password as a public artifact.
+5. For game preparation, use a dedicated/disposable self-hosted Windows machine that is permitted, not GitHub-hosted gaming. Ensure the runner labels `self-hosted`, `Windows`, `X64`, `rdpfree` and read the system change effects in the README.
 
-Repository lama perlu menyinkronkan workflow schema 2, scripts, dan assets bersama-sama. App hanya memiliki izin baca source sehingga tidak bisa memperbarui file tersebut secara otomatis. Template manual juga menyalin folder web; pemilik boleh menghapus `web`, `web-next`, dan `deploy` dari repository sesi jika tidak diperlukan.
+Older repositories need to sync workflow schema 2, scripts, and assets together. The app only has read access to the source so it cannot update those files automatically. The manual template also copies the web folder; owners may remove `web`, `web-next`, and `deploy` from the session repository if not needed.
 
-Identitas login GitHub dan otorisasi GitHub App adalah dua proses terpisah. Persetujuan/install App hanya untuk repository yang kamu pilih. Tidak ada jaminan anti-suspend atau dukungan universal game/VM.
+GitHub login identity and GitHub App authorization are two separate processes. Installing/approving the App applies only to the repositories you choose. There is no guarantee against suspension or universal support for games/VMs.

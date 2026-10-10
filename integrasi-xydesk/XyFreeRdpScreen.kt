@@ -30,18 +30,18 @@ import id.xydesk.remote.ui.components.XyCard
 import kotlinx.coroutines.launch
 
 /**
- * XyFreeRdpScreen — Create RDP 6 jam dari APK XyDesk Remote.
+ * XyFreeRdpScreen — Create a 6-hour RDP from the XyDesk Remote APK.
  *
- * - Nonton iklan Rewarded 1x seumur hidup (per device) → unlock.
- * - WebView load https://xyrdp-dash.vercel.app/id/home?apk=1
- * - Setelah RDP aktif, user bisa tap "Connect di XyDesk" → auto buat profile.
+ * - Watch a Rewarded ad 1x lifetime (per device) → unlock.
+ * - WebView loads https://xyrdp-dash.vercel.app/id/home?apk=1
+ * - After RDP is active, user can tap "Connect in XyDesk" → auto-create profile.
  *
- * TEMPEL file ini di: client/Android/Studio/app/src/main/kotlin/id/xydesk/remote/ui/XyFreeRdpScreen.kt
- * Tambah di AppPrefs: var rdpFreeAdUnlocked
- * Panggil dari XyDeskHome: XyFreeRdpScreen(onBack, onConnect)
+ * PASTE this file at: client/Android/Studio/app/src/main/kotlin/id/xydesk/remote/ui/XyFreeRdpScreen.kt
+ * Add in AppPrefs: var rdpFreeAdUnlocked
+ * Call from XyDeskHome: XyFreeRdpScreen(onBack, onConnect)
  */
 
-// ---------- CARD di Home ----------
+// ---------- CARD on Home ----------
 @Composable
 fun XyFreeRdpCard(
     unlocked: Boolean,
@@ -75,8 +75,8 @@ fun XyFreeRdpCard(
                 ) { Text("⚡", fontSize = 20.sp) }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("RDP Gratis 6 Jam", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, letterSpacing = (-0.3).sp)
-                    Text("Buat Windows di HP • 1x iklan aja", color = Color(0xFF9AA0B6), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Free 6-Hour RDP", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, letterSpacing = (-0.3).sp)
+                    Text("Create Windows on phone • 1 ad only", color = Color(0xFF9AA0B6), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                 }
                 if (unlocked) {
                     Box(
@@ -84,25 +84,25 @@ fun XyFreeRdpCard(
                             .clip(RoundedCornerShape(99.dp))
                             .background(Color(0xFF22C55E).copy(0.14f))
                             .padding(horizontal = 10.dp, vertical = 5.dp)
-                    ) { Text("✓ TERBUKA", color = Color(0xFF86EFAC), fontSize = 10.sp, fontWeight = FontWeight.ExtraBold) }
+                    ) { Text("✓ OPEN", color = Color(0xFF86EFAC), fontSize = 10.sp, fontWeight = FontWeight.ExtraBold) }
                 } else {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(99.dp))
                             .background(Color(0xFFFF8A00).copy(0.18f))
                             .padding(horizontal = 10.dp, vertical = 5.dp)
-                    ) { Text("▶ 1X IKLAN", color = Color(0xFFFFC08A), fontSize = 10.sp, fontWeight = FontWeight.ExtraBold) }
+                    ) { Text("▶ 1X AD", color = Color(0xFFFFC08A), fontSize = 10.sp, fontWeight = FontWeight.ExtraBold) }
                 }
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                "Windows 11 Pro di cloud GitHub Actions, konek via Tailscale 100.x atau RustDesk. Jam digital gede, bukan progress bar. Credit KallAncrit.",
+                "Windows 11 Pro on GitHub Actions cloud, connect via Tailscale 100.x or RustDesk. Big digital clock, not a progress bar. Credit KallAncrit.",
                 color = Color(0xFFB8BDCF), fontSize = 12.sp, lineHeight = 16.sp
             )
             Spacer(Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 XyPillButton(
-                    text = if (unlocked) "🚀 Create RDP Sekarang" else "▶ Nonton Iklan & Create",
+                    text = if (unlocked) "🚀 Create RDP Now" else "▶ Watch Ad & Create",
                     onClick = onCreate,
                     modifier = Modifier.weight(1f)
                 )
@@ -112,7 +112,7 @@ fun XyFreeRdpCard(
                 )
             }
             if (!unlocked) {
-                Text("Sekali nonton, selamanya gratis di device ini.", color = Color(0xFF6B7280), fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Watch once, free forever on this device.", color = Color(0xFF6B7280), fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
     }
@@ -120,20 +120,20 @@ fun XyFreeRdpCard(
 
 // ---------- AD HELPER (AdMob Rewarded) ----------
 /**
- * Helper minimal. Ganti TEST_ID dengan ID produksi kamu.
+ * Minimal helper. Replace TEST_ID with your production ID.
  * TEST rewarded: ca-app-pub-3940256099942544/5224354917
  */
 object XyRdpAdHelper {
     const val TEST_REWARDED_ID = "ca-app-pub-3940256099942544/5224354917"
-    // TODO: ganti dengan ID produksi: ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy
+    // TODO: replace with production ID: ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy
     const val PROD_REWARDED_ID = "ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy"
 
     fun loadRewarded(context: Context, onLoaded: (Any?) -> Unit, onFailed: () -> Unit) {
-        // Tanpa SDK pun tetap jalan: fallback mock 15s
-        // Kalau sudah tambah play-services-ads, ganti dengan:
+        // Works without SDK too: fallback mock 15s
+        // If you added play-services-ads, replace with:
         // val adRequest = AdRequest.Builder().build()
         // RewardedAd.load(context, rewardedId, adRequest, callback)
-        // Untuk paket ini, pakai mock biar tidak wajib compile AdMob dulu.
+        // For this package, use mock so AdMob compilation is not required yet.
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             onLoaded(null) // mock success
         }, 500)
@@ -161,7 +161,7 @@ fun XyFreeRdpScreen(
         adUnlocked = true
         context.getSharedPreferences("xydesk.app", Context.MODE_PRIVATE)
             .edit().putBoolean("rdp_free_ad_unlocked", true).apply()
-        // set cookie untuk WebView supaya /api/start tidak 402
+        // set cookie for WebView so /api/start won't return 402
         try {
             val cm = CookieManager.getInstance()
             cm.setAcceptCookie(true)
@@ -170,7 +170,7 @@ fun XyFreeRdpScreen(
         } catch (_: Exception) {}
     }
 
-    // Cek pref saat masuk
+    // Check pref on entry
     LaunchedEffect(Unit) {
         if (!adUnlocked) showAdGate = true
     }
@@ -182,8 +182,8 @@ fun XyFreeRdpScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            XyPillButton(text = "← Kembali", onClick = onBack)
-            Text("RDP Gratis — XyDesk", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+            XyPillButton(text = "← Back", onClick = onBack)
+            Text("Free RDP — XyDesk", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
             Box(Modifier.size(1.dp))
         }
 
@@ -202,10 +202,10 @@ fun XyFreeRdpScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("▶ IKLAN • 1X SEUMUR HIDUP", color = Color(0xFFFF8A00), fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
+                        Text("▶ AD • 1X LIFETIME", color = Color(0xFFFF8A00), fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
                         Spacer(Modifier.height(8.dp))
-                        Text("Buka Create RDP gratis", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
-                        Text("Tonton iklan 15 detik sekali aja, setelah itu Create kebuka selamanya. Support server bre! 🙏", color = Color(0xFF9AA0B6), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Text("Unlock Free RDP", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+                        Text("Watch a 15-second ad just once, then Create is unlocked forever. Support the server bro! 🙏", color = Color(0xFF9AA0B6), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         Spacer(Modifier.height(16.dp))
                         // Mock ad preview
                         Box(
@@ -214,11 +214,11 @@ fun XyFreeRdpScreen(
                                 .background(Color(0xFF0F0F18)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("▷ Iklan XyDesk Remote akan diputar di sini", color = Color(0xFF6B7280), fontSize = 11.sp)
+                            Text("▷ XyDesk Remote ad will play here", color = Color(0xFF6B7280), fontSize = 11.sp)
                         }
                         Spacer(Modifier.height(14.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f), shape = RoundedCornerShape(99.dp)) { Text("Nanti") }
+                            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f), shape = RoundedCornerShape(99.dp)) { Text("Later") }
                             var watching by remember { mutableStateOf(false) }
                             var sec by remember { mutableIntStateOf(15) }
                             var prog by remember { mutableFloatStateOf(0f) }
@@ -231,7 +231,7 @@ fun XyFreeRdpScreen(
                                     if (sec <= 0) {
                                         unlock()
                                         showAdGate = false
-                                        Toast.makeText(context, "Iklan selesai — Create RDP terbuka!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Ad finished — Create RDP unlocked!", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
@@ -239,7 +239,7 @@ fun XyFreeRdpScreen(
                                 onClick = {
                                     if (!watching) {
                                         watching = true
-                                        // Kalau sudah ada AdMob, panggil:
+                                        // If you have AdMob, call:
                                         // XyRdpAdHelper.loadRewarded(...) { ad -> ad.show(...) { unlock() } }
                                     }
                                 },
@@ -247,10 +247,10 @@ fun XyFreeRdpScreen(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(99.dp)
                             ) {
-                                Text(if (!watching) "▶ Nonton 15s" else "${sec}s...")
+                                Text(if (!watching) "▶ Watch 15s" else "${sec}s...")
                             }
                         }
-                        if (adUnlocked) Text("✓ Terbuka", color = Color(0xFF22C55E), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                        if (adUnlocked) Text("✓ Unlocked", color = Color(0xFF22C55E), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
             }
@@ -265,7 +265,7 @@ fun XyFreeRdpScreen(
                         webChromeClient = WebChromeClient()
                         webViewClient = object : WebViewClient() {
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                                return false // buka di WebView yang sama
+                                return false // open in the same WebView
                             }
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 // inject unlocked flag
@@ -280,37 +280,37 @@ fun XyFreeRdpScreen(
                                 )
                             }
                         }
-                        // JS bridge untuk auto-connect
+                        // JS bridge for auto-connect
                         addJavascriptInterface(object {
                             @JavascriptInterface
                             fun onRdpCreated(json: String) {
                                 // json: {"ip":"100.x","user":"xyadmin","pass":"..."}
                                 scope.launch {
                                     try {
-                                        // parse simpel
+                                        // simple parse
                                         val ip = Regex("\"ip\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: ""
                                         val user = Regex("\"user\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: "xyadmin"
                                         val pass = Regex("\"pass\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: ""
                                         if (ip.isNotBlank()) {
                                             val profile = ConnectionProfile(
                                                 id = java.util.UUID.randomUUID().toString(),
-                                                label = "RDP Gratis $ip",
+                                                label = "Free RDP $ip",
                                                 host = ip,
                                                 port = 3389,
                                                 username = user,
-                                                // password disimpan via gateway (terenkripsi)
+                                                // password stored via gateway (encrypted)
                                             )
-                                            // simpan via SessionsRepository kalau mau
-                                            Toast.makeText(context, "RDP $ip siap — buka sesi?", Toast.LENGTH_LONG).show()
+                                            // save via SessionsRepository if desired
+                                            Toast.makeText(context, "RDP $ip ready — open session?", Toast.LENGTH_LONG).show()
                                             onConnectProfile(profile)
                                         }
                                     } catch (e: Exception) {
-                                        Toast.makeText(context, "Gagal parse RDP: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Failed to parse RDP: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
                         }, "Android")
-                        // cookie untuk ad
+                        // cookie for ad
                         CookieManager.getInstance().setAcceptCookie(true)
                         CookieManager.getInstance().setCookie("https://xyrdp-dash.vercel.app", "ad_verified=1; Path=/; Max-Age=2592000")
                         loadUrl("https://xyrdp-dash.vercel.app/id/home?apk=1")

@@ -1,65 +1,65 @@
-# Integrasi XyRDP-SAMP ↔ XyDesk Remote (APK) — Create RDP 1x Iklan
+# XyRDP-SAMP ↔ XyDesk Remote (APK) Integration — Create RDP with 1x Ad
 
-> **Tujuan:** User buka APK XyDesk Remote → tap **“RDP Gratis 6 Jam”** → nonton iklan **1x seumur hidup** → langsung bisa **Create RDP** via WebView tanpa keluar APK. Sisa waktu di dash tampil sebagai **jam digital besar** (bukan progress bar).
+> Purpose: User opens the XyDesk Remote APK → taps “RDP Free 6 Hours” → watches an ad 1x per device lifetime → can immediately Create RDP via WebView without leaving the APK. Remaining time on the dashboard is displayed as a large digital clock (not a progress bar).
 
-Ini paket siap-tempel untuk repo **github.com/xykal/Xydesk-Remote**.
+This is a plug-and-play package for the repository github.com/xykal/Xydesk-Remote.
 
 ---
 
-## 1) Apa yang sudah jadi di XyRDP (web)
+## 1) What’s already done in XyRDP (web)
 
-**Web `deploy/vercel/assets/index.html`**
-- Sisa waktu diganti **digital-clock** gede: `HH:MM:SS` font mono `JetBrains Mono`-style, blink colon, glow `drop-shadow`, live dot pulsing, sub-text “Sisa X jam Y menit”.
-- Progress bar dihapus (tetap ada `<span id="stLeft" class="hidden">` biar JS lama tidak pecah).
-- Gate iklan: modal `id="adGate"` → 15s countdown + progress, setelah selesai `localStorage rdp_ad_unlocked=1` + cookie `ad_verified=1` (30 hari) + `POST /api/ad/verify`.
+Web `deploy/vercel/assets/index.html`
+- Remaining time replaced with a large digital clock: `HH:MM:SS` using a mono font JetBrains Mono-style, blinking colon, glow drop-shadow, live pulsing dot, sub-text “Remaining X hours Y minutes”.
+- Progress bar removed (keeps `<span id="stLeft" class="hidden">` so older JS doesn’t break).
+- Ad gate: modal `id="adGate"` → 15s countdown + progress; after completion sets `localStorage rdp_ad_unlocked=1` + cookie `ad_verified=1` (30 days) + `POST /api/ad/verify`.
 
-**API `deploy/vercel/api/index.js`**
+API `deploy/vercel/api/index.js`
 - `POST /api/ad/verify` → `Set-Cookie: ad_verified=1; Max-Age=2592000`
 - `GET /api/ad/status` → `{unlocked:true|false}`
-- `GET /api/apk` → info APK
-- `POST /api/start` sekarang **wajib iklan** untuk `kind=user` (admin bypass):
+- `GET /api/apk` → APK info
+- `POST /api/start` now requires ad for `kind=user` (admin bypass):
   ```js
   if (ctx.kind==='user' && !hasAd && AD_GATE_DISABLED!=='1') return 402 {need_ad:true}
   ```
-  Header yang diterima: `ad_verified` cookie **atau** `X-Ad-Verified:1` / `X-Xy-Ad:1` (untuk APK WebView).
-- CORS `*` untuk `/ad/*` & `/apk`.
+  Accepted header: `ad_verified` cookie OR `X-Ad-Verified:1` / `X-Xy-Ad:1` (for APK WebView).
+- CORS `*` enabled for `/ad/*` & `/apk`.
 
-**Cara test web:**
-- Buka `/id/home`, tombol **Mulai Sesi** akan buka gate kalau belum unlock.
-- Setelah “Nonton 15s”, localStorage + cookie set, tombol langsung aktif selamanya.
-- Sisa waktu sekarang tampil di kartu **Sesi** → jam digital `06:00:00` gede.
+How to test web:
+- Open `/id/home`, the Start Session button will open the gate if not unlocked.
+- After “Watch 15s”, localStorage + cookie set, the button becomes permanently active.
+- Remaining time now displays in the Session card → large digital clock `06:00:00`.
 
 ---
 
-## 2) Integrasi APK — 3 langkah
+## 2) APK Integration — 3 steps
 
-### Langkah A — Tambah AdMob (Rewarded)
+Step A — Add AdMob (Rewarded)
 
 `client/Android/Studio/app/build.gradle` → dependencies:
 ```gradle
 implementation 'com.google.android.gms:play-services-ads:23.0.0'
 ```
 
-`AndroidManifest.xml` → dalam `<application>`:
+`AndroidManifest.xml` → inside `<application>`:
 ```xml
 <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/>
-<!-- pakai TEST ID dulu: ca-app-pub-3940256099942544~3347511713 -->
+<!-- use TEST ID first: ca-app-pub-3940256099942544~3347511713 -->
 ```
 
-### Langkah B — Copy 2 file baru
+Step B — Copy 2 new files
 
-Copy ke `client/Android/Studio/app/src/main/kotlin/id/xydesk/remote/ui/`:
+Copy to `client/Android/Studio/app/src/main/kotlin/id/xydesk/remote/ui/`:
 
-- **`XyFreeRdpScreen.kt`** (sudah disertakan di folder ini) — WebView + Ad gate + bridge.
-- **`XyRdpAdHelper.kt`** (opsional, bisa gabung) — helper AdMob.
+- `XyFreeRdpScreen.kt` (included in this folder) — WebView + Ad gate + bridge.
+- `XyRdpAdHelper.kt` (optional, can be merged) — AdMob helper.
 
-### Langkah C — Tambah entry di Home
+Step C — Add entry in Home
 
-Buka `XyDeskHome.kt`, tambahkan card di atas daftar perangkat (lihat diff `patch_XyDeskHome.kt.diff`).
+Open `XyDeskHome.kt`, add a card above the device list (see diff `patch_XyDeskHome.kt.diff`).
 
-**Snippet minimal:**
+Minimal snippet:
 ```kotlin
-// di Devices route, paling atas Column
+// in Devices route, top of Column
 XyFreeRdpCard(
   unlocked = appPrefs.rdpFreeAdUnlocked,
   onCreate = {
@@ -69,7 +69,7 @@ XyFreeRdpCard(
 )
 ```
 
-Tambahkan di `AppPrefs.kt`:
+Add to `AppPrefs.kt`:
 ```kotlin
 var rdpFreeAdUnlocked: Boolean
   get() = sp.getBoolean("rdp_free_ad_unlocked", false)
@@ -78,89 +78,87 @@ var rdpFreeAdUnlocked: Boolean
 
 ---
 
-## 3) Alur APK (user perspective)
+## 3) APK Flow (user perspective)
 
-1. Buka XyDesk Remote → **Beranda** → card **“RDP Gratis 6 Jam — Buat Windows di HP”**
-2. Tap **Create RDP** → kalau belum pernah nonton, muncul **Rewarded Ad** (15-30s)
-3. Selesai nonton → `rdpFreeAdUnlocked=true` + `CookieManager.setCookie("https://xyrdp-dash.vercel.app","ad_verified=1")`
-4. WebView load `https://xyrdp-dash.vercel.app/id/home?apk=1` → user login GitHub (OAuth) di WebView → tap **Mulai Sesi** (sudah unlocked, tidak minta iklan lagi)
-5. Polling ` /api/status` → jam digital gede `05:42:11` muncul.
-6. Kartu koneksi → **“Connect di XyDesk”** (bridge) otomatis buat `ConnectionProfile(host=100.x, user, pass)` → `XyDeskSessionActivity`.
+1. Open XyDesk Remote → Home → card “RDP Free 6 Hours — Create Windows on Phone”
+2. Tap Create RDP → if the user hasn’t watched yet, a Rewarded Ad appears (15–30s)
+3. After watching → `rdpFreeAdUnlocked=true` + `CookieManager.setCookie("https://xyrdp-dash.vercel.app","ad_verified=1")`
+4. WebView loads `https://xyrdp-dash.vercel.app/id/home?apk=1` → user logs in with GitHub (OAuth) in the WebView → taps Start Session (already unlocked, no ad required)
+5. Polling `/api/status` → large digital clock `05:42:11` appears.
+6. Connection card → “Connect in XyDesk” (bridge) automatically creates `ConnectionProfile(host=100.x, user, pass)` → `XyDeskSessionActivity`.
 
-Sekali unlock, selamanya tidak minta iklan lagi (per device). Kalau reinstall, nonton lagi 1x.
+Once unlocked, the ad is never required again (per device). If the app is reinstalled, user must watch again once.
 
 ---
 
-## 4) Bridge Web ↔ APK (opsional canggih)
+## 4) Web ↔ APK Bridge (advanced, optional)
 
-Web (`index.html`) sudah expose:
+The web (`index.html`) already exposes:
 ```js
 window.XyDesk = window.XyDesk || {}
-// APK inject via addJavascriptInterface
-// Web kalau detect `Android` atau `?apk=1` tampilkan tombol “Buka di XyDesk”
+// APK injects via addJavascriptInterface
+// Web if it detects `Android` or `?apk=1` shows “Open in XyDesk” button
 if (navigator.userAgent.includes("XyDesk")) {
-  // tampilkan extra button
+  // show extra button
 }
 ```
 
-Di `XyFreeRdpScreen.kt`, WebView sudah inject:
+In `XyFreeRdpScreen.kt`, the WebView already injects:
 ```kotlin
 webView.addJavascriptInterface(object{
-  @JavascriptInterface fun onRdpCreated(json: String){ /* parse ip/user/pass, buat profile */ }
+  @JavascriptInterface fun onRdpCreated(json: String){ /* parse ip/user/pass, create profile */ }
 }, "Android")
 ```
-Web bisa panggil `Android.onRdpCreated(...)` saat `poll()` detect `session.active`.
+Web can call `Android.onRdpCreated(...)` when `poll()` detects `session.active`.
 
 ---
 
 ## 5) Test checklist
 
-- [ ] Web: clear `localStorage` → click **Mulai Sesi** → gate muncul → 15s → unlock → start berhasil (200) tanpa 402.
-- [ ] API: `curl -X POST https://xyrdp-dash.vercel.app/api/ad/verify -c cookies.txt` → cookie set → `curl -b cookies.txt POST /api/start` → 200 (bukan 402).
-- [ ] APK: fresh install → tap Create → ad muncul → setelah reward, WebView load dash → login GitHub → Create → jam digital muncul `HH:MM:SS`.
-- [ ] Reopen APK → tap Create → langsung WebView (tidak minta ad lagi).
+- [ ] Web: clear `localStorage` → click Start Session → gate appears → 15s → unlock → start succeeds (200) without 402.
+- [ ] API: `curl -X POST https://xyrdp-dash.vercel.app/api/ad/verify -c cookies.txt` → cookie set → `curl -b cookies.txt POST /api/start` → 200 (not 402).
+- [ ] APK: fresh install → tap Create → ad shows → after reward, WebView loads dashboard → login GitHub → Create → large digital clock appears `HH:MM:SS`.
+- [ ] Reopen APK → tap Create → immediately WebView (no ad again).
 
 ---
 
-## 6) File di paket ini
+## 6) Files in this package
 
 - `XyFreeRdpScreen.kt` — full Compose screen
-- `patch_XyDeskHome.kt.diff` — diff 12 baris untuk tambah card
-- `patch_AppPrefs.kt.diff` — tambah pref
-- `README_INTEGRASI.md` — ini
+- `patch_XyDeskHome.kt.diff` — 12-line diff to add the card
+- `patch_AppPrefs.kt.diff` — add pref
+- `README_INTEGRASI.md` — this file
 
-Credit tetap **KallAncrit** untuk XyRDP template.
-
+Credit remains to KallAncrit for the XyRDP template.
 
 ---
 
-## 7) Anti-AdBlock & Pilihan Iklan Cuan (2026)
+## 7) Anti-AdBlock & Monetization Options (2026)
 
-### Kenapa tetap kedeteksi walau pakai AdBlock?
-Gate kita **tidak tergantung** script iklan eksternal untuk unlock:
-- Deteksi: cek bait `div.ad` + `getComputedStyle` + coba fetch `adsbygoogle.js`. Hasil simpan `__adBlockDetected`.
-- Unlock **wajib** lewat `POST /api/ad/verify` + cookie `ad_verified` + `localStorage` — server yang validasi, bukan client. Jadi walau uBlock/APK AdGuard, user **tetap harus** 15s di modal internal kita. Tidak bisa bypass inspect-element (server tolak `POST /start` dengan `402 need_ad`).
+Why ads still detected even with AdBlock?
+The gate does not rely on external ad scripts to unlock:
+- Detection: checks bait `div.ad` + `getComputedStyle` + tries fetching `adsbygoogle.js`. Result stored in `__adBlockDetected`.
+- Unlock requires `POST /api/ad/verify` + cookie `ad_verified` + `localStorage` — server validates, not client. So even with uBlock/APK AdGuard, the user still must spend 15s in our internal modal. Cannot bypass with inspect-element (server rejects `POST /start` with `402 need_ad`).
 
-Fallback internal ad yang tampil kalau block:
-- `adPreviewText = " AdBlock terdeteksi — tetap harus nonton 15s (internal ad)"` → tampil promo XyDesk + sponsor lokal (bisa isi dengan banner affiliate kamu). Countdown tetap jalan, reward tetap unlock. Jadi AdBlock justru bikin user lihat promo kamu, bukan kabur.
+Internal fallback ad shown when blocked:
+- `adPreviewText = " AdBlock detected — you still must watch 15s (internal ad)"` → shows a XyDesk promo + local sponsor (you can put your affiliate banner). The countdown still runs, reward still unlocks. So AdBlock makes the user see your promo rather than skipping.
 
-### Rekomendasi Jaringan Iklan (cuan lumayan, 2026)
+Recommended ad networks (monetization, 2026)
 
-**WEB (dash Vercel):**
-- **Terbaik untuk rewarded 1x:** `Google AdSense Rewarded` atau `Google Ad Manager Rewarded` — eCPM tertinggi ($3–$8 di ID, $8–$15 US) tapi butuh approve domain.
-- **Paling gampang approve & anti-AdBlock:** `Adsterra Social Bar + Rewarded Interstitial` atau `Monetag Rewarded` — eCPM $1–$4 ID, $4–$9 US, approve instan, script ringan, tidak diblok uBlock se-agresif AdSense. Cocok untuk fallback kalau `__adBlockDetected==true`.
-- **Alternatif:** `PropellerAds Rewarded`, `a-ads.com` (crypto, tanpa KYC), `HilltopAds`.
-- **Implementasi hybrid (disarankan):** 
+WEB (Vercel dashboard):
+- Best for 1x rewarded: Google AdSense Rewarded or Google Ad Manager Rewarded — highest eCPM ($3–$8 in ID, $8–$15 US) but requires domain approval.
+- Easiest to approve & more resistant to AdBlock: Adsterra Social Bar + Rewarded Interstitial or Monetag Rewarded — eCPM $1–$4 ID, $4–$9 US, instant approval, light script, not as aggressively blocked as AdSense. Good as a fallback when `__adBlockDetected==true`.
+- Alternatives: PropellerAds Rewarded, a-ads.com (crypto, no KYC), HilltopAds.
+- Recommended hybrid implementation:
   ```js
-  if(!__adBlockDetected) loadAdsense(); else loadAdsterra(); // tetap 15s
+  if(!__adBlockDetected) loadAdsense(); else loadAdsterra(); // still 15s
   ```
-  Simpan ID di `window.__adProviders.web`.
+  Store provider IDs in `window.__adProviders.web`.
 
-**APK (XyDesk Remote):**
-- **Terbaik:** `AdMob Rewarded` (`play-services-ads:23.0.0`) — eCPM $5–$12 ID, $15–$40 US untuk rewarded video. Pakai **mediation** biar fill-rate 99%:
-  - Mediation: AdMob + `Facebook Audience Network` + `Unity Ads` + `AppLovin MAX`. 
-- **Setup:** Test ID `ca-app-pub-3940256099942544/5224354917` → ganti ke produksi `ca-app-pub-xxx/yyy` di `XyRdpAdHelper.kt`. Jangan lupa `APPLICATION_ID` di `AndroidManifest.xml`.
-- **Tips cuan:** Rewarded jangan interstitial — rewarded dibayar 3–5x lebih mahal & tidak ganggu UX karena 1x aja.
+APK (XyDesk Remote):
+- Best: AdMob Rewarded (`play-services-ads:23.0.0`) — eCPM $5–$12 ID, $15–$40 US for rewarded video. Use mediation for ~99% fill-rate:
+  - Mediation: AdMob + Facebook Audience Network + Unity Ads + AppLovin MAX.
+- Setup: Test ID `ca-app-pub-3940256099942544/5224354917` → replace with production `ca-app-pub-xxx/yyy` in `XyRdpAdHelper.kt`. Don’t forget `APPLICATION_ID` in `AndroidManifest.xml`.
+- Monetization tips: Use rewarded instead of interstitial — rewarded pays 3–5x more and is less intrusive since it’s only 1x.
 
-> **Kesimpulan:** Untuk PR ini, default internal 15s (100% work walau AdBlock). Nanti kamu tinggal ganti `window.__adProviders` & `XyRdpAdHelper.PROD_REWARDED_ID` ke ID produksi, tanpa ubah logic gate.
-
+Conclusion: For this PR, the default internal 15s gate works 100% even with AdBlock. Later you just replace `window.__adProviders` & `XyRdpAdHelper.PROD_REWARDED_ID` with production IDs without changing gate logic.

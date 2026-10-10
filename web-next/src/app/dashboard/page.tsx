@@ -1,2 +1,2 @@
 import Console from "./rdp-console";
-export default function Page(){return <><span className="eyebrow">Workspace / Home</span><h1>Workspace kamu.</h1><p>Jalankan dan pantau workflow XyRDP dari satu tempat.</p><Console/></>}
+export default function Page(){return <><span className="eyebrow">Workspace / Home</span><h1>Your workspace.</h1><p>Run and monitor XyRDP workflows from one place.</p><Console/></>}

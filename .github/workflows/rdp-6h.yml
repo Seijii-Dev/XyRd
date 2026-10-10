@@ -76,8 +76,8 @@ name: RdpFree — RDP 6 Jam
         required: false
         default: ''
         type: string
-      win10:
-        description: Tweak tampilan Windows 10 (Server Manager mati, personalisasi, wallpaper, label)
+      win11:
+        description: Windows 11 appearance (hosted windows-2025 target; use self-hosted for a pinned Windows 11 machine)
         required: false
         default: ya
         type: choice
@@ -109,7 +109,7 @@ name: RdpFree — RDP 6 Jam
         - software
         - tidak
       runner:
-        description: GitHub untuk pengujian software; games hanya di mesin Windows self-hosted khusus milikmu
+        description: GitHub uses windows-2025 as the Windows 11-based hosted target; choose self-hosted with the windows-11 label for a pinned Windows 11 OS
         required: false
         default: github
         type: choice
@@ -156,14 +156,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   rdp:
-    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","Windows","X64","rdpfree"]') || 'windows-2022'
+    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","Windows","X64","rdpfree","windows-11"]') || 'windows-2025'
       }}
     timeout-minutes: 360
     env:
       DUR: ${{ inputs.durasi_menit }}
       HOSTNAME: ${{ inputs.hostname }}
       AKSES: tailscale
-      WIN10: ${{ inputs.win10 }}
+      WIN11: ${{ inputs.win11 }}
       XYDESK: ${{ inputs.xydesk }}
       EXTRAS: ${{ inputs.ekstra }}
       GRAFIS: ${{ inputs.grafis }}
@@ -213,11 +213,11 @@ jobs:
       timeout-minutes: 15
       shell: pwsh
       run: ./scripts/setup-rdp.ps1
-    - name: Tweak tampilan Windows 10 (Server Manager, personalisasi, wallpaper)
-      if: ${{ inputs.win10 != 'tidak' }}
+    - name: Tweak tampilan Windows 11 (Server Manager, personalisasi, wallpaper)
+      if: ${{ inputs.win11 != 'tidak' }}
       timeout-minutes: 15
       shell: pwsh
-      run: ./scripts/setup-win10.ps1
+      run: ./scripts/setup-win11.ps1
     - name: Host setup XyDesk Remote (AVC444 + ClearType + audio/mic + UDP 4433)
       if: ${{ inputs.xydesk != 'tidak' }}
       timeout-minutes: 10

@@ -1,8 +1,8 @@
 /* ============================================================================
- * RdpFree Dashboard — server.js (tanpa dependency, Node >= 18)
- * Menjalankan & memantau workflow "RdpFree" di GitHub Actions lewat REST API.
- * Password RDP disimpan LOKAL di config.json — tidak pernah ke repo publik.
- * Jalankan:  node server.js   → http://localhost:4173
+ * RdpFree Dashboard — server.js (no dependencies, Node >= 18)
+ * Runs & monitors the "RdpFree" workflow on GitHub Actions via the REST API.
+ * RDP password is stored LOCALLY in config.json — never in a public repo.
+ * Run:  node server.js   → http://localhost:4173
  * ==========================================================================*/
 const http = require('http');
 const fs = require('fs');
@@ -11,7 +11,7 @@ const zlib = require('zlib');
 
 const CFG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
 const { token, owner, repo, workflow = 'rdp-6h.yml', branch = 'main', port = 4173 } = CFG;
-// Token GitHub pada config.json tidak boleh terekspos ke jaringan lokal.
+// GitHub token in config.json must not be exposed to the local network.
 const host = process.env.HOST || '127.0.0.1';
 const STATUS_RAW = `https://raw.githubusercontent.com/${owner}/${repo}/status/rdp-status.json`;
 const API = 'https://api.github.com';
@@ -35,25 +35,25 @@ async function gh(method, apiPath, body) {
 async function fetchStatusFile() {
   if (Date.now() - statusCache.at < 5000) return statusCache.data;
   let data = null;
-  // Contents API DULU: selalu segar (tanpa cache CDN). Ini penting karena alamat
-  // tunnel berganti tiap sesi — kalau dashboard menyajikan alamat lama, klien di
-  // HP akan kena "koneksi ditolak/ditutup" (temuan 3 Okt: 3 sesi beruntun gagal
-  // karena alamat yang dipakai bukan alamat sesi yang sedang jalan).
+  // Use Contents API FIRST: always fresh (no CDN cache). This is important because
+  // tunnel addresses change each session — if the dashboard serves an old address,
+  // mobile clients will get "connection refused/closed" (finding on Oct 3: 3
+  // consecutive sessions failed because the address used was not the running session's).
   try {
     const c = await gh('GET', `/repos/${owner}/${repo}/contents/rdp-status.json?ref=status&t=${Date.now()}`);
     if (c && c.content) data = JSON.parse(Buffer.from(c.content, 'base64').toString('utf8'));
-  } catch { /* branch status belum ada / API sedang dibatasi */ }
+  } catch { /* status branch not present yet / API rate-limited */ }
   if (!data) {
     try {
       const r = await fetch(STATUS_RAW + `?t=${Date.now()}`, { cache: 'no-store' });
       if (r.ok) data = JSON.parse(await r.text());
-    } catch { /* raw belum tersedia */ }
+    } catch { /* raw not available yet */ }
   }
   statusCache = { at: Date.now(), data };
   return data;
 }
 
-// ---- unzip kecil murni JS buat log Actions (format zip) ----
+// ---- small pure JS unzip for Actions logs (zip format) ----
 function unzipEntries(buf) {
   for (let i = buf.length - 22; i >= 0; i--) {
     if (buf.readUInt32LE(i) === 0x06054b50) {
@@ -74,14 +74,14 @@ function unzipEntries(buf) {
         const data = buf.subarray(start, start + csize);
         let txt = '';
         try { txt = method === 8 ? zlib.inflateRawSync(data).toString('utf8') : data.toString('utf8'); }
-        catch { txt = '(gagal dekompresi ' + name + ')'; }
+        catch { txt = '(failed to decompress ' + name + ')'; }
         out.push({ name, txt });
         off += 46 + nlen + elen + clen;
       }
       return out;
     }
   }
-  throw new Error('bukan file zip');
+  throw new Error('not a zip file');
 }
 
 async function activeRun() {
@@ -102,19 +102,19 @@ async function readLog(runId) {
     const entries = unzipEntries(buf).sort((a, b) => a.name.localeCompare(b.name));
     return entries.map(e => e.txt).join('\n');
   }
-  return buf.toString('utf8'); // GitHub kini memberi job log sebagai text/plain
+  return buf.toString('utf8'); // GitHub now provides job log as text/plain
 }
 
-// ---- konfigurasi ekstra (assets/rdp-extras.json di repo) + wallpaper ----
+// ---- extra configuration (assets/rdp-extras.json in repo) + wallpaper ----
 const EXTRAS_PATH = 'assets/rdp-extras.json';
-const EXTRAS_DEFAULTS = { lightshot: true, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win10_look: true, win10_badge: true, win10_wallpaper: true, xydesk_host: true };
+const EXTRAS_DEFAULTS = { lightshot: true, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win11_look: true, win11_badge: true, win11_wallpaper: true, xydesk_host: true };
 const WALLPAPER_RE = /^wallpaper\.(jpg|jpeg|png|bmp)$/i;
 
 async function readRepoFile(path) {
   try {
     const c = await gh('GET', `/repos/${owner}/${repo}/contents/${path}?ref=${branch}`);
     if (c && c.content) return { json: JSON.parse(Buffer.from(c.content, 'base64').toString('utf8')), sha: c.sha };
-  } catch { /* belum ada */ }
+  } catch { /* not present yet */ }
   return { json: null, sha: null };
 }
 function extrasResponse(cfg, fileExists) {
@@ -160,7 +160,7 @@ async function handle(req, res) {
       return send(200, {
         owner, repo, workflow,
         rdp_user: CFG.rdp_user || 'xyadmin',
-        rdp_password: CFG.rdp_password || '(set rdp_password di web/config.json)',
+        rdp_password: CFG.rdp_password || '(set rdp_password in web/config.json)',
         rdp_port: 3389,
       });
     }
@@ -168,7 +168,7 @@ async function handle(req, res) {
     if (req.method === 'GET' && url.pathname === '/api/status') {
       const [file, run] = await Promise.all([fetchStatusFile(), activeRun()]);
       let session = file;
-      // fallback: status file belum ada → ekstrak IP dari log run aktif
+      // fallback: status file not present → extract IP from active run log
       if ((!session || !session.active) && run && (run.status === 'in_progress' || run.status === 'queued')) {
         try {
           const txt = await readLog(run.id);
@@ -183,7 +183,7 @@ async function handle(req, res) {
               expires_at: new Date(Date.parse(run.run_started_at || run.created_at) + 360 * 60000).toISOString(),
               akses: {
                 mode: 'keduanya',
-                rustdesk: { status: rdId ? 'ok' : 'pending', id: rdId, server: 'server publik bawaan' },
+                rustdesk: { status: rdId ? 'ok' : 'pending', id: rdId, server: 'default public server' },
                 tunnel: {
                   status: mTun ? 'ok' : 'pending', provider: '', host: mTun ? mTun[1] : '',
                   port: mTun ? Number(mTun[2]) : 0, address: mTun ? `${mTun[1]}:${mTun[2]}` : '',
@@ -192,7 +192,7 @@ async function handle(req, res) {
               source: 'log',
             };
           }
-        } catch { /* log belum tersedia */ }
+        } catch { /* log not available yet */ }
       }
       let runView = null;
       if (run) {
@@ -214,7 +214,7 @@ async function handle(req, res) {
         hostname: String(p.hostname || 'xyrdp').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'xyrdp',
         akses: ['keduanya', 'rustdesk', 'tunnel'].includes(String(p.akses)) ? String(p.akses) : 'keduanya',
         tunnel_provider: ['otomatis', 'bore', 'ngrok'].includes(String(p.tunnel_provider)) ? String(p.tunnel_provider) : 'otomatis',
-        win10: (p.win10 === 'tidak' ? 'tidak' : 'ya'),
+        win11: (p.win11 === 'tidak' ? 'tidak' : 'ya'),
       };
       await gh('POST', `/repos/${owner}/${repo}/actions/workflows/${workflow}/dispatches`, { ref: branch, inputs });
       return send(200, { ok: true, inputs });
@@ -228,7 +228,7 @@ async function handle(req, res) {
       let runId = p.run_id;
       if (!runId) {
         const run = await activeRun();
-        if (!run) return send(400, { error: 'tidak ada run untuk di-stop' });
+        if (!run) return send(400, { error: 'no run to stop' });
         runId = run.id;
       }
       await gh('POST', `/repos/${owner}/${repo}/actions/runs/${runId}/cancel`, {});
@@ -239,7 +239,7 @@ async function handle(req, res) {
       let runId = url.searchParams.get('run_id');
       if (!runId) {
         const run = await activeRun();
-        if (!run) return send(400, { error: 'belum ada run' });
+        if (!run) return send(400, { error: 'no run yet' });
         runId = run.id;
       }
       const txt = await readLog(Number(runId));
@@ -263,7 +263,7 @@ async function handle(req, res) {
       for (const k of ['lightshot', 'translucent', 'wallpaper', 'xydesk_host']) {
         if (k in p) next[k] = !!p[k];
       }
-      for (const k of ['win10_look', 'win10_badge', 'win10_wallpaper']) {
+      for (const k of ['win11_look', 'win11_badge', 'win11_wallpaper']) {
         if (k in p) next[k] = !!p[k];
       }
       if (p.translucent_mode) {
@@ -272,7 +272,7 @@ async function handle(req, res) {
       }
       const content = Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8').toString('base64');
       await gh('PUT', `/repos/${owner}/${repo}/contents/${EXTRAS_PATH}`,
-        { message: 'RdpFree: update konfigurasi ekstra (via dashboard)', content, branch, ...(sha ? { sha } : {}) });
+        { message: 'RdpFree: update extra configuration (via dashboard)', content, branch, ...(sha ? { sha } : {}) });
       return send(200, { ok: true, config: next });
     }
 
@@ -282,34 +282,34 @@ async function handle(req, res) {
       await new Promise(r => req.on('end', r));
       const p = JSON.parse(body || '{}');
       const m = /^data:image\/(png|jpe?g|bmp);base64,([A-Za-z0-9+/=\s]+)$/.exec(String(p.image || ''));
-      if (!m) return send(400, { error: 'Format gambar tidak didukung (jpg/png/bmp)' });
+      if (!m) return send(400, { error: 'Image format not supported (jpg/png/bmp)' });
       const buf = Buffer.from(m[2].replace(/\s+/g, ''), 'base64');
-      if (buf.length > 3 * 1024 * 1024) return send(400, { error: 'Ukuran gambar maksimal 3 MB (dashboard mengecilkan otomatis)' });
+      if (buf.length > 3 * 1024 * 1024) return send(400, { error: 'Maximum image size 3 MB (dashboard resizes automatically)' });
       const ext = imageInfo(buf);
-      if (!ext) return send(400, { error: 'File bukan gambar jpg/png/bmp yang valid' });
+      if (!ext) return send(400, { error: 'File is not a valid jpg/png/bmp image' });
       const target = `assets/wallpaper.${ext}`;
-      // hapus wallpaper lama dengan ekstensi berbeda supaya tidak dobel
+      // remove old wallpaper with different extension to avoid duplicates
       try {
         const list = await gh('GET', `/repos/${owner}/${repo}/contents/assets?ref=${branch}`);
         if (Array.isArray(list)) {
           for (const f of list) {
             if (WALLPAPER_RE.test(f.name) && f.name !== `wallpaper.${ext}`) {
               await gh('DELETE', `/repos/${owner}/${repo}/contents/${f.path}`,
-                { message: `RdpFree: hapus ${f.name} (diganti wallpaper baru)`, sha: f.sha, branch });
+                { message: `RdpFree: remove ${f.name} (replaced by new wallpaper)`, sha: f.sha, branch });
             }
           }
         }
-      } catch { /* abaikan */ }
+      } catch { /* ignore */ }
       let curSha = null;
-      try { const cur = await gh('GET', `/repos/${owner}/${repo}/contents/${target}?ref=${branch}`); curSha = cur && cur.sha; } catch { /* file baru */ }
+      try { const cur = await gh('GET', `/repos/${owner}/${repo}/contents/${target}?ref=${branch}`); curSha = cur && cur.sha; } catch { /* new file */ }
       await gh('PUT', `/repos/${owner}/${repo}/contents/${target}`, {
-        message: `RdpFree: wallpaper baru (${Math.round(buf.length / 1024)} KB, via dashboard)`,
+        message: `RdpFree: new wallpaper (${Math.round(buf.length / 1024)} KB, via dashboard)`,
         content: buf.toString('base64'), branch, ...(curSha ? { sha: curSha } : {}),
       });
       const { json: cfgJson, sha: cfgSha } = await readRepoFile(EXTRAS_PATH);
       const next = Object.assign({}, EXTRAS_DEFAULTS, cfgJson || {}, { wallpaper: true, wallpaper_file: `wallpaper.${ext}` });
       await gh('PUT', `/repos/${owner}/${repo}/contents/${EXTRAS_PATH}`, {
-        message: 'RdpFree: aktifkan wallpaper baru (via dashboard)',
+        message: 'RdpFree: enable new wallpaper (via dashboard)',
         content: Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8').toString('base64'), branch, ...(cfgSha ? { sha: cfgSha } : {}),
       });
       return send(200, { ok: true, file: `wallpaper.${ext}`, size_kb: Math.round(buf.length / 1024) });

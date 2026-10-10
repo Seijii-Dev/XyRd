@@ -1,16 +1,16 @@
 # ============================================================================
-#  setup-grafis.ps1 — "GPU software" untuk sesi RDP di runner TANPA GPU fisik.
+#  setup-grafis.ps1 — "GPU software" for RDP sessions on runners WITHOUT a physical GPU.
 #
-#  Runner GitHub tidak punya GPU: satu-satunya adapter = Microsoft Basic Render
-#  Driver (WARP / Direct3D software). Script ini memasang renderer SOFTWARE
-#  supaya aplikasi yang mewajibkan OpenGL/Vulkan/DirectX tetap bisa jalan:
-#    - Mesa3D llvmpipe  -> OpenGL 4.5+/4.6 core software (dipasang sistem-wide)
-#    - Mesa3D lavapipe  -> Vulkan (CPU) lewat VK_DRIVER_FILES
-#    - WARP (D3D11/D3D12) sudah bawaan Windows
-#  Semuanya CPU-based: cukup untuk aplikasi 2D/ringan & tool yang butuh konteks
-#  GL/Vulkan; untuk game 3D berat / render video GPU tetap lambat (tidak ada
-#  NVENC, tidak ada VRAM). VM ini ephemeral, jadi penggantian opengl32.dll
-#  sistem tidak permanen (dan aslinya di-backup ke C:\XyRDP\grafis\orig).
+#  GitHub runners don't have a GPU: the only adapter = Microsoft Basic Render
+#  Driver (WARP / Direct3D software). This script installs SOFTWARE renderers
+#  so applications that require OpenGL/Vulkan/DirectX can still run:
+#    - Mesa3D llvmpipe  -> OpenGL 4.5+/4.6 core software (installed system-wide)
+#    - Mesa3D lavapipe  -> Vulkan (CPU) via VK_DRIVER_FILES
+#    - WARP (D3D11/D3D12) is built into Windows
+#  All CPU-based: suitable for lightweight 2D apps & tools needing GL/Vulkan
+#  contexts; heavy 3D games / GPU video rendering will remain slow (no
+#  NVENC, no VRAM). This VM is ephemeral, so replacing system opengl32.dll
+#  is not permanent (and the original is backed up to C:\XyRDP\grafis\orig).
 # ============================================================================
 $XyTag = 'XyRDP:grafis'
 . "$PSScriptRoot/lib-common.ps1"
@@ -23,19 +23,19 @@ New-Item -ItemType Directory -Force -Path $bkp | Out-Null
 $gMode = 'software'; $gMesa = ''; $gOpenGL = ''; $gVulkan = ''
 $gAdapters = ''; $gNote = ''
 
-# ---- 1) adapter yang ada sekarang (bukti tidak ada GPU fisik) --------------
+# ---- 1) current adapters (evidence of no physical GPU) --------------------
 try {
   $ad = @(Get-CimInstance Win32_VideoController -ErrorAction Stop | ForEach-Object { "$($_.Name)" })
   $gAdapters = ($ad -join ' | ')
 } catch { $gAdapters = '' }
 Log "  adapter grafis: $(if ($gAdapters) { $gAdapters } else { '(tidak terbaca)' })"
 
-# ---- 2) unduh Mesa3D (pal1000/mesa-dist-win, build MSVC) -------------------
+# ---- 2) download Mesa3D (pal1000/mesa-dist-win, MSVC build) ----------------
 $asset = Get-GhAssetUrl 'pal1000/mesa-dist-win' 'mesa3d-.*-release-msvc\.7z$'
 if (-not $asset) { $asset = Get-GhAssetUrl 'pal1000/mesa-dist-win' 'release-msvc.*\.7z$' }
 if (-not $asset) {
-  Log '  Mesa: asset rilis tidak ketemu (API/rate-limit) - grafis software dilewati'
-  Update-Status @{ grafis = @{ mode = 'gagal'; mesa = ''; adapters = $gAdapters; note = 'unduhan Mesa tidak tersedia' } } | Out-Null
+  Log '  Mesa: release asset not found (API/rate-limit) - skipping software graphics'
+  Update-Status @{ grafis = @{ mode = 'gagal'; mesa = ''; adapters = $gAdapters; note = 'Mesa download not available' } } | Out-Null
   return
 }
 $gMesa = ($asset.name -replace '^mesa3d-', '' -replace '-release-msvc\.7z$', '')
@@ -43,12 +43,12 @@ Log "  Mesa3D: $($asset.name) (tag $($asset.tag))"
 
 $arc = Join-Path $root $asset.name
 if (-not (Get-File $asset.url $arc 300)) {
-  Log '  unduh Mesa gagal'
-  Update-Status @{ grafis = @{ mode = 'gagal'; mesa = $gMesa; adapters = $gAdapters; note = 'unduhan gagal' } } | Out-Null
+  Log '  Mesa download failed'
+  Update-Status @{ grafis = @{ mode = 'gagal'; mesa = $gMesa; adapters = $gAdapters; note = 'download failed' } } | Out-Null
   return
 }
 
-# ---- 3) ekstrak (runner GitHub punya 7-Zip) --------------------------------
+# ---- 3) extract (GitHub runner has 7-Zip) ---------------------------------
 $sevenZip = $null
 foreach ($p in @("$env:ProgramFiles\7-Zip\7z.exe", "${env:ProgramFiles(x86)}\7-Zip\7z.exe")) {
   if (Test-Path $p) { $sevenZip = $p; break }
@@ -58,9 +58,9 @@ $ext = Join-Path $root 'mesa'
 Remove-Item $ext -Recurse -Force -ErrorAction SilentlyContinue
 if ($sevenZip) {
   & $sevenZip x $arc "-o$ext" -y 2>&1 | Out-Null
-  Log "  7z: diekstrak ke $ext"
+  Log "  7z: extracted to $ext"
 } else {
-  Log '  7z.exe tidak ada - coba tar (arsip .7z umumnya gagal)'
+  Log '  7z.exe not found - trying tar ( .7z archives often fail )'
   try { tar -xf $arc -C $ext 2>&1 | Out-Null } catch {}
 }
 
@@ -83,9 +83,9 @@ if ($opengl) { $files += 'opengl32.dll' }
 if ($galium) { $files += 'libgallium_wgl.dll' }
 if ($lvpDll) { $files += 'vulkan_lvp.dll' }
 
-# ---- 4) pasang llvmpipe (OpenGL) sistem-wide -------------------------------
-# DLL di System32 dimiliki TrustedInstaller -> harus takeown + icacls dulu,
-# kalau tidak: "Access to the path 'C:\Windows\System32\opengl32.dll' is denied".
+# ---- 4) install llvmpipe (OpenGL) system-wide ------------------------------
+# Files in System32 are owned by TrustedInstaller -> must takeown + icacls first,
+# otherwise: "Access to the path 'C:\Windows\System32\opengl32.dll' is denied".
 function Install-SysFile([string]$src, [string]$dst) {
   if (-not $src) { return $false }
   if (-not (Test-Path $dst)) { Copy-Item $src $dst -Force -ErrorAction Stop; return $true }
@@ -108,22 +108,22 @@ if ($opengl) {
     Install-SysFile $dxil   "$sys32\dxil.dll" | Out-Null
     $vi = (Get-Item "$sys32\opengl32.dll").VersionInfo
     $gGLInstall = "mesa $($vi.FileVersion) [$($vi.CompanyName)]"
-    Log "  llvmpipe terpasang: $sys32\opengl32.dll -> $gGLInstall (asli di-backup ke $bkp)"
+    Log "  llvmpipe installed: $sys32\opengl32.dll -> $gGLInstall (original backed up to $bkp)"
   } catch {
     $gGLInstall = 'gagal: ' + $_.Exception.Message
-    Log "  GAGAL pasang Mesa ke System32: $($_.Exception.Message)"
+    Log "  FAILED to install Mesa into System32: $($_.Exception.Message)"
     $glDir = Join-Path $root 'gl'
     New-Item -ItemType Directory -Force -Path $glDir | Out-Null
     foreach ($f in @($opengl, $galium, $dxil)) { if ($f) { Copy-Item $f $glDir -Force -ErrorAction SilentlyContinue } }
-    Log "  fallback: DLL Mesa disalin ke $glDir (perlu disalin ke folder aplikasi)"
+    Log "  fallback: Mesa DLLs copied to $glDir (need to copy into app folder)"
   }
 } else {
-  Log '  opengl32.dll Mesa tidak ketemu di arsip (OpenGL dilewati)'
+  Log '  Mesa opengl32.dll not found in archive (OpenGL skipped)'
 }
 [Environment]::SetEnvironmentVariable('GALLIUM_DRIVER', 'llvmpipe', 'Machine')
 [Environment]::SetEnvironmentVariable('LIBGL_ALWAYS_SOFTWARE', '1', 'Machine')
 
-# ---- 5) pasang lavapipe (Vulkan CPU) --------------------------------------
+# ---- 5) install lavapipe (Vulkan CPU) -------------------------------------
 if ($lvpDll -and $lvpIcd) {
   $vkDir = Join-Path $root 'vulkan'
   New-Item -ItemType Directory -Force -Path $vkDir | Out-Null
@@ -133,19 +133,19 @@ if ($lvpDll -and $lvpIcd) {
   [Environment]::SetEnvironmentVariable('VK_DRIVER_FILES', $icd, 'Machine')
   [Environment]::SetEnvironmentVariable('VK_ADD_DRIVER_FILES', $icd, 'Machine')
   $gVulkan = 'lavapipe (CPU)'
-  Log "  lavapipe terdaftar: VK_DRIVER_FILES=$icd"
+  Log "  lavapipe registered: VK_DRIVER_FILES=$icd"
 } else {
-  Log '  lavapipe tidak ada di arsip (Vulkan dilewati)'
+  Log '  lavapipe not present in archive (Vulkan skipped)'
 }
 
-# ---- 5b) loader Vulkan (vulkan-1.dll): runner tanpa driver GPU belum punya -
-# Tanpa loader, aplikasi Vulkan tidak bisa memakai lavapipe. LunarG menyediakan
-# paket "Vulkan Runtime Components" (zip kecil, berisi x64/vulkan-1.dll).
+# ---- 5b) Vulkan loader (vulkan-1.dll): runners without GPU driver often lack it -
+# Without a loader, Vulkan apps cannot use lavapipe. LunarG provides a
+# "Vulkan Runtime Components" package (small zip containing x64/vulkan-1.dll).
 $gVkLoader = ''
 $loaderDst = "$sys32\vulkan-1.dll"
 if (Test-Path $loaderDst) {
-  $gVkLoader = 'sudah ada'
-  Log "  loader Vulkan sudah ada: $loaderDst"
+  $gVkLoader = 'already present'
+  Log "  Vulkan loader already present: $loaderDst"
 } else {
   $vkrt = Join-Path $root 'vulkan-runtime.zip'
   if (Get-File 'https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-runtime-components.zip' $vkrt 300) {
@@ -162,31 +162,31 @@ if (Test-Path $loaderDst) {
         $vi = (Get-Item $loaderDst).VersionInfo
         $gVkLoader = "vulkan-1.dll $($vi.FileVersion) (LunarG)".Trim()
         $files += 'vulkan-1.dll'
-        Log "  loader Vulkan dipasang: $loaderDst -> $gVkLoader"
+        Log "  Vulkan loader installed: $loaderDst -> $gVkLoader"
       } else {
-        Log '  vulkan-1.dll tidak ada di paket runtime LunarG'
+        Log '  vulkan-1.dll not found in LunarG runtime package'
       }
       $vex = @(Get-ChildItem $zvk -Recurse -File -Filter 'vulkaninfo.exe' -ErrorAction SilentlyContinue |
                Where-Object { $_.FullName -match '\\x64\\' })
       if ($vex.Count -gt 0) { Copy-Item $vex[0].FullName (Join-Path $root 'vulkaninfo.exe') -Force -ErrorAction SilentlyContinue }
-    } catch { Log "  pasang loader Vulkan gagal: $($_.Exception.Message)" }
+    } catch { Log "  failed to install Vulkan loader: $($_.Exception.Message)" }
   } else {
-    Log '  unduh runtime Vulkan (LunarG) gagal - loader dilewati'
+    Log '  download of Vulkan runtime (LunarG) failed - loader skipped'
   }
 }
 
-# 5c) daftarkan ICD lavapipe ke registry (cara resmi driver GPU) supaya loader
-#     dan aplikasi apa pun menemukannya, tanpa bergantung pada env var saja.
+# 5c) register lavapipe ICD in the registry (official GPU driver approach)
+#     so loader and any app can find it, not relying on env vars alone.
 if ($icd) {
   try {
     $vkKey = 'HKLM:\SOFTWARE\Khronos\Vulkan\Drivers'
     New-Item -Path $vkKey -Force -ErrorAction SilentlyContinue | Out-Null
     New-ItemProperty -Path $vkKey -Name $icd -PropertyType DWord -Value 0 -Force | Out-Null
-    Log "  ICD lavapipe terdaftar di registry: $vkKey"
-  } catch { Log "  daftar ICD ke registry gagal: $($_.Exception.Message)" }
+    Log "  lavapipe ICD registered in registry: $vkKey"
+  } catch { Log "  registering ICD to registry failed: $($_.Exception.Message)" }
 }
 
-# ---- 6) uji nyata: versi OpenGL/Vulkan yang benar-benar didapat ------------
+# ---- 6) real test: actual OpenGL/Vulkan versions obtained ------------------
 $py = Get-Command python.exe -ErrorAction SilentlyContinue
 if (-not $py) { $py = Get-Command py.exe -ErrorAction SilentlyContinue }
 $env:GALLIUM_DRIVER = 'llvmpipe'; $env:LIBGL_ALWAYS_SOFTWARE = '1'
@@ -201,11 +201,11 @@ if ($py -and $opengl) {
   $code = 'import moderngl;c=moderngl.create_standalone_context();i=c.info;print(i.get("GL_VERSION",""),"|",i.get("GL_RENDERER",""),"|",i.get("GL_VENDOR",""))'
   try {
     $out = ((& $py.Source -c $code 2>&1) | Out-String).Trim()
-    if ($out -match '\|') { $gOpenGL = ($out -replace '\s+', ' ') } else { Log "  uji OpenGL: $(($out -split "`n" | Select-Object -Last 1))" }
-  } catch { Log "  uji OpenGL gagal: $($_.Exception.Message)" }
+    if ($out -match '\|') { $gOpenGL = ($out -replace '\s+', ' ') } else { Log "  OpenGL test: $(($out -split "`n" | Select-Object -Last 1))" }
+  } catch { Log "  OpenGL test failed: $($_.Exception.Message)" }
 }
 
-# Vulkan: minta vulkaninfo (paling otoritatif), lalu fallback ctypes ke loader
+# Vulkan: request vulkaninfo (most authoritative), then fallback to ctypes loader
 $vkOk = $false
 $vkinfo = Join-Path $root 'vulkaninfo.exe'
 if (Test-Path $vkinfo) {
@@ -216,12 +216,12 @@ if (Test-Path $vkinfo) {
     if ($dn) {
       $gVulkan = "$dn $(if ($dt) { "($dt)" })".TrimEnd() -replace '^\s+|\s+$', ''
       $vkOk = $true
-      Log "  uji Vulkan: $gVulkan"
+      Log "  Vulkan test: $gVulkan"
     } else {
       $gVkDbg = (($vo -split "`n" | Where-Object { $_ -match '\S' } | Select-Object -First 20) -join ' ; ')
-      Log "  vulkaninfo tanpa device; debug: $gVkDbg"
+      Log "  vulkaninfo without device; debug: $gVkDbg"
     }
-  } catch { Log "  vulkaninfo gagal: $($_.Exception.Message)" }
+  } catch { Log "  vulkaninfo failed: $($_.Exception.Message)" }
 }
 if ($py -and -not $vkOk) {
   $vkCode = @'
@@ -270,24 +270,24 @@ print(buf.raw[20:276].split(b"\x00")[0].decode("utf-8", "replace"))
     if (-not $gVkDbg -and $vout) { $gVkDbg = (($vout -split "`n" | Where-Object { $_ -match '\S' } | Select-Object -First 20) -join ' ; ') }
     if ($vout -eq 'loader-tidak-ada') { $gVulkan = "$gVulkan / loader vulkan-1.dll tidak ada" }
     elseif ($vout -match 'create-instance-error|tanpa-device') { $gVulkan = "$gVulkan / uji: $([regex]::Match($vout, 'create-instance-error-\d+|tanpa-device').Value)" }
-    elseif ($vout) { $gVulkan = $vout; Log "  uji Vulkan: device = $vout" }
-  } catch { Log "  uji Vulkan gagal: $($_.Exception.Message)" }
+    elseif ($vout) { $gVulkan = $vout; Log "  Vulkan test: device = $vout" }
+  } catch { Log "  Vulkan test failed: $($_.Exception.Message)" }
 }
 
-if (-not $gOpenGL) { $gOpenGL = "llvmpipe (Mesa $gMesa) - belum terverifikasi" }
+if (-not $gOpenGL) { $gOpenGL = "llvmpipe (Mesa $gMesa) - not yet verified" }
 $glVer = [regex]::Match($gOpenGL, '^(\d+\.\d+)').Groups[1].Value
 if (-not $glVer) { $glVer = '4.5+' }
 if ($gGLInstall -like 'mesa*') {
-  $gNote = "GPU software (CPU): OpenGL $glVer (llvmpipe) + Vulkan lavapipe + WARP bawaan. Runner GitHub tanpa GPU fisik; 3D berat tetap lambat."
+  $gNote = "Software GPU (CPU): OpenGL $glVer (llvmpipe) + Vulkan lavapipe + built-in WARP. GitHub runner without physical GPU; heavy 3D remains slow."
 } else {
-  $gNote = "Pasang OpenGL software ke System32 gagal ($gGLInstall). Vulkan lavapipe & WARP tetap aktif; DLL Mesa tersedia di $root\gl untuk pemakaian per-aplikasi."
+  $gNote = "Installing OpenGL software into System32 failed ($gGLInstall). Vulkan lavapipe & WARP remain active; Mesa DLLs are available in $root\gl for per-application use."
 }
-Log "  selesai: OpenGL=$gOpenGL | Vulkan=$(if ($gVulkan) { $gVulkan } else { '-' }) | loader=$(if ($gVkLoader) { $gVkLoader } else { '-' }) | install=$gGLInstall"
+Log "  done: OpenGL=$gOpenGL | Vulkan=$(if ($gVulkan) { $gVulkan } else { '-' }) | loader=$(if ($gVkLoader) { $gVkLoader } else { '-' }) | install=$gGLInstall"
 
 try {
   Update-Status @{ grafis = @{
     mode = $gMode; mesa = $gMesa; opengl = $gOpenGL; vulkan = $gVulkan; install = $gGLInstall
     loader = $gVkLoader; debug = $gVkDbg; adapters = $gAdapters; files = ($files -join ','); dir = $root; note = $gNote
   } } | Out-Null
-  Log '  status grafis ditulis (grafis.*)'
-} catch { Log "  tulis status grafis gagal: $($_.Exception.Message)" }
+  Log '  graphics status written (grafis.*)'
+} catch { Log "  writing graphics status failed: $($_.Exception.Message)" }

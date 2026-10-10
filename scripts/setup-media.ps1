@@ -11,7 +11,7 @@ Set-Reg $policy 'fDisableAudio' 0 'DWord' | Out-Null
 Set-Reg $policy 'fDisableAudioCapture' ([int](-not $mic)) 'DWord' | Out-Null
 Set-Reg $policy 'fNoRemoteDesktopWallpaper' ([int](-not $wall)) 'DWord' | Out-Null
 foreach ($service in @('AudioEndpointBuilder','Audiosrv')) {
-  try { Set-Service $service -StartupType Automatic -ErrorAction Stop; Start-Service $service -ErrorAction Stop } catch { Log "Layanan $service belum aktif" }
+  try { Set-Service $service -StartupType Automatic -ErrorAction Stop; Start-Service $service -ErrorAction Stop } catch { Log "Service $service not yet active" }
 }
 if ($mic) { Set-Reg 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone' 'Value' 'Allow' 'String' | Out-Null }
 $wallStatus='disabled'
@@ -42,8 +42,8 @@ Add-Type -TypeDefinition 'using System.Runtime.InteropServices; public class Rdp
   Set-Reg $active 'StubPath' "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$apply`"" 'String' | Out-Null
   Set-RegBoth 'Software\Microsoft\Windows\CurrentVersion\Run' 'RdpFreeWallpaper' "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$apply`"" 'String' | Out-Null
   Close-DefaultHive
-  if ((Get-ItemPropertyValue -Path $policy -Name 'fNoRemoteDesktopWallpaper') -ne 0) { throw 'Kebijakan Windows masih memblokir wallpaper Remote Desktop' }
+  if ((Get-ItemPropertyValue -Path $policy -Name 'fNoRemoteDesktopWallpaper') -ne 0) { throw 'Windows policy still blocks Remote Desktop wallpaper' }
   $wallStatus='xyverse_configured_for_user_logon'
 }
-Update-Status @{media=@{wallpaper=$wallStatus;microphone=$(if ($mic) {'rdp_capture_enabled'} else {'disabled'});audio_output='rdp_playback_enabled';verification='Login ulang, aktifkan mic di XyDesk dan izinkan Android. Uji Windows Settings > Sound > Input; kebijakan aktif bukan bukti capture end-to-end.'}} | Out-Null
-Log 'Wallpaper profil dan audio capture disiapkan; pengujian suara tetap memerlukan klien tersambung.'
+Update-Status @{media=@{wallpaper=$wallStatus;microphone=$(if ($mic) {'rdp_capture_enabled'} else {'disabled'});audio_output='rdp_playback_enabled';verification='Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.'}} | Out-Null
+Log 'Profile wallpaper and audio capture prepared; audio testing still requires a connected client.'

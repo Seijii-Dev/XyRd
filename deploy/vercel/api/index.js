@@ -54,7 +54,7 @@ const EXTRAS_PATH = 'assets/rdp-extras.json';
 // Pause semua pembuatan/permintaan sesi baru sampai arsitektur RDP dinyatakan sesuai kebijakan host.
 const RDP_START_PAUSED = String(process.env.RDP_START_PAUSED || 'false').toLowerCase() === 'true';
 const RDP_PAUSE_MESSAGE = 'Sesi RDP baru sedang dijeda. Jangan buat repo/secret baru atau dispatch workflow. GitHub-hosted Actions bukan layanan desktop RDP umum; baca /panduan untuk alasan, langkah pengamanan, dan banding resmi.';
-const EXTRAS_DEFAULTS = { lightshot: false, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win10_look: true, win10_badge: true, win10_wallpaper: true, xydesk_host: true, dark_theme: true, lightweight_mode: true, vscode: false, notepadpp: false, rdp_user: 'xyadmin' };
+const EXTRAS_DEFAULTS = { lightshot: false, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win11_look: true, win11_badge: false, win11_wallpaper: true, xydesk_host: true, dark_theme: true, lightweight_mode: true, vscode: false, notepadpp: false, rdp_user: 'xyadmin' };
 const RDP_USERNAME_RESERVED = new Set(['administrator', 'guest', 'defaultaccount', 'wdagutilityaccount', 'system', 'localservice', 'networkservice', 'con', 'prn', 'aux', 'nul']);
 function normalizeRdpUser(value) {
   const name = String(value || '').trim();
@@ -793,7 +793,7 @@ module.exports = async (req, res) => {
         rdp_user: rdpUser,
         akses: ['keduanya', 'tailscale', 'semua', 'rustdesk', 'tunnel'].includes(String(body.akses)) ? String(body.akses) : 'tailscale',
         tunnel_provider: ['otomatis', 'bore', 'ngrok'].includes(String(body.tunnel_provider)) ? String(body.tunnel_provider) : 'otomatis',
-        win10: (body.win10 === 'tidak' ? 'tidak' : 'ya'),
+        win11: (body.win11 === 'tidak' ? 'tidak' : 'ya'),
         grafis: (body.grafis === 'tidak' ? 'tidak' : 'software'),
       };
       await gh(ctx.token, 'POST', `/repos/${ctx.owner}/${ctx.repo}/actions/workflows/${ENV.workflow}/dispatches`, { ref: ctx.branch || ENV.branch, inputs });
@@ -837,7 +837,7 @@ module.exports = async (req, res) => {
       const body = await readBody(req);
       const { json: cur, sha } = await readRepoFile(ctx, EXTRAS_PATH);
       const next = Object.assign({}, EXTRAS_DEFAULTS, cur || {});
-      for (const k of ['lightshot', 'translucent', 'wallpaper', 'xydesk_host', 'win10_look', 'win10_badge', 'win10_wallpaper', 'dark_theme', 'lightweight_mode', 'vscode', 'notepadpp']) {
+      for (const k of ['lightshot', 'translucent', 'wallpaper', 'xydesk_host', 'win11_look', 'win11_badge', 'win11_wallpaper', 'dark_theme', 'lightweight_mode', 'vscode', 'notepadpp']) {
         if (k in body) next[k] = !!body[k];
       }
       if ('rdp_user' in body) {

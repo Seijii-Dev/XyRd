@@ -1,49 +1,49 @@
-# PENGUMUMAN — Fix Login Tiap Refresh & Anti-Suspend (10 Okt 2026)
+# ANNOUNCEMENT — Fix Login on Every Refresh & Anti-Suspend (10 Oct 2026)
 
-> **Update wajib untuk semua user fork.** Sync fork kamu sekarang — fix sudah di `main` (`5c7df72` REVISI TOTAL web login — anti login loop).
+> Mandatory update for all fork users. Sync your fork now — the fix is already in `main` (`5c7df72` TOTAL REVISON of web login — anti login loop).
 
-## 1. Login tiap refresh — SUDAH FIX (tidak risih lagi)
+## 1. Login on every refresh — FIXED (no more annoying re-logins)
 
-**Masalah sebelumnya:** tiap refresh browser disuruh login lagi.
+Previous issue: each browser refresh forced re-login.
 
-**Fix:**
-- Frontend sekarang kirim cookie dengan `credentials: 'include'` (sebelumnya tidak) → session `ghs`/`sid` (AES-256-GCM) kekirim tiap request
-- Masa aktif diperpanjang **7 hari → 30 hari** (GitHub) dan **12 jam → 30 hari** (admin)
-- Cache `localStorage: xyrdp_me_cache` — refresh tetap masuk dashboard dulu sambil cek di background
+Fix:
+- Frontend now sends cookies with `credentials: 'include'` (previously not) → session `ghs`/`sid` (AES-256-GCM) are sent with every request
+- Lifetimes extended **7 days → 30 days** (GitHub) and **12 hours → 30 days** (admin)
+- Cache `localStorage: xyrdp_me_cache` — refresh still opens the dashboard first while checking in background
 
-**Action kamu (sekali saja setelah update ini live di Vercel ~1 menit):**
-1. Buka `xyrdp-dash.vercel.app` → jika masih diminta login, **Clear cookie** untuk site (Chrome: ikon gembok → Cookies → hapus `ghs` & `sid`) atau `Ctrl+Shift+Del` → Cookies
-2. Login ulang sekali → selanjutnya **tahan 30 hari**, refresh tidak logout lagi
-3. Jangan ganti `SESSION_SECRET` di Vercel (≥32 char). Kalau diganti, semua user logout.
+Your action (once after this update goes live on Vercel ~1 minute):
+1. Open `xyrdp-dash.vercel.app` → if still asked to login, **Clear cookies** for the site (Chrome: lock icon → Cookies → remove `ghs` & `sid`) or `Ctrl+Shift+Del` → Cookies
+2. Log in once → afterwards you’ll stay logged in for **30 days**, refresh won’t log you out anymore
+3. Don’t change `SESSION_SECRET` in Vercel (≥32 char). If changed, all users are logged out.
 
-## 2. Kenapa login via Dashboard bisa kena suspend, padahal fork manual aman?
+## 2. Why Dashboard login can get suspended, while manual fork is safe?
 
-| Cara | Aman? | Kenapa |
+| Method | Safe? | Why |
 |---|---|---|
-| **Fork manual di github.com** (`xykal/XyRDP` → `Use this template` → `Create new repository`) | **PALING AMAN** | Aksi native GitHub. Rate limit per akun kamu. Workflow jalan di repo `kamu/RdpFree` pakai token kamu. Tidak lewat IP Vercel. |
-| **Dashboard “Masuk dengan GitHub” (OAuth)** | Berisiko jika spam | Dashboard pakai token kamu untuk `generate repo` + `set secrets` + `dispatch workflow` via **API dari IP Vercel**. Kalau banyak user klik “Buat Repo” + “Start” barengan dalam 1-2 menit → terdeteksi **automation spam / abuse** → flag suspend. |
+| **Manual fork on github.com** (`xykal/XyRDP` → `Use this template` → `Create new repository`) | **SAFEST** | Native GitHub action. Rate limits per your account. Workflow runs in your `you/RdpFree` repo using your token. Does not go through Vercel IP. |
+| **Dashboard “Sign in with GitHub” (OAuth)** | Risky if spammed | Dashboard uses your token to `generate repo` + `set secrets` + `dispatch workflow` via **API from Vercel IP**. If many users click “Create Repo” + “Start” simultaneously within 1–2 minutes → detected as **automation spam / abuse** → flagged and suspended. |
 
-**Fix anti-suspend di dashboard (sudah live):**
-- **Limit 2× Start per 5 menit per user/IP** → kalau kelebihan: `429 Tunggu Xs lagi`
-- **Blokir dispatch jika masih ada run `queued/in_progress`** → harus `Stop` dulu
-- Semua dijelaskan di `/panduan` bagian baru
+Anti-suspend fixes on the dashboard (live):
+- **Limit 2× Start per 5 minutes per user/IP** → if exceeded: `429 Wait Xs more`
+- **Block dispatch if there is still a run `queued/in_progress`** → must `Stop` first
+- All explained in `/panduan` new section
 
-**Cara aman pakai dashboard:**
-1. **Paling aman: fork manual dulu** di github.com (beri nama `RdpFree`), tunggu 1-2 menit, baru login dashboard (otomatis pakai `kamu/RdpFree`)
-2. Jangan spam “Buat Repo” / “Start” — tunggu run selesai
-3. Jangan bikin 5+ repo RDP dalam sejam pakai 1 akun
-4. Isi secret wajib: `RDP_PASSWORD` (min 8) + `TAILSCALE_AUTH_KEY` (`tskey-auth-...` jangan share publik). Opsional: `GTA_SA_URL` untuk SAMP
+Safe ways to use the dashboard:
+1. **Safest: fork manually first** on github.com (name it `RdpFree`), wait 1–2 minutes, then login to the dashboard (it will automatically use `your/RdpFree`)
+2. Don’t spam “Create Repo” / “Start” — wait for the run to finish
+3. Don’t create 5+ RDP repos in an hour with one account
+4. Required secrets: `RDP_PASSWORD` (min 8) + `TAILSCALE_AUTH_KEY` (`tskey-auth-...` don’t share publicly). Optional: `GTA_SA_URL` for SAMP
 
-## 3. Cara sync fork kamu (dapat fix boost stuck + login)
+## 3. How to sync your fork (gets the boost stuck & login fixes)
 
-**Paling cepat (web):**
-1. Buka fork kamu `github.com/kamu/RdpFree` → tombol **Sync fork** → **Update branch** (atau `Fetch upstream` jika belum pernah)
-2. Jika tombol tidak ada: `Settings` → `Actions` → `General` → pastikan **Allow all actions** + **Workflow permissions: Read and write**
-3. Cek `Actions` tab → workflow `RdpFree — RDP 6 Jam` aktif (jangan Disable)
+Fastest (web):
+1. Open your fork `github.com/your/RdpFree` → button **Sync fork** → **Update branch** (or `Fetch upstream` if never done)
+2. If the button is missing: `Settings` → `Actions` → `General` → ensure **Allow all actions** + **Workflow permissions: Read and write**
+3. Check `Actions` tab → workflow `RdpFree — RDP 6 Jam` active (don’t Disable)
 
-**Via git (alternatif):**
+Via git (alternative):
 ```bash
-git clone https://github.com/kamu/RdpFree.git
+git clone https://github.com/your/RdpFree.git
 cd RdpFree
 git remote add upstream https://github.com/xykal/XyRDP.git
 git fetch upstream
@@ -51,63 +51,63 @@ git merge upstream/main
 git push origin main
 ```
 
-Setelah sync, boost tidak akan stuck lagi (sebelumnya `Get-ChildItem -Recurse` di `C:\Android` bikin hang 10 menit → sekarang FAST `3m25s` terbukti run #86). Cek di `Actions` → log ` Boost Storage`.
+After sync, boost will no longer get stuck (previously `Get-ChildItem -Recurse` in `C:\Android` caused a 10-minute hang → now FAST `3m25s` proven on run #86). Check `Actions` → log ` Boost Storage`.
 
-## 4. Wallpaper hitam & Mikrofon — FIX `1c0b668`
+## 4. Black wallpaper & Microphone — FIX `1c0b668`
 
-**Wallpaper hitam itu bawaan Windows Server, bukan XyDesk.** XyDesk cuma host RDP — `mstsc` & XyDesk lihat sesi yang sama. Repo sudah ada `assets/wallpaper.jpg` + `wallpaper-win10.jpg` + `rdp-extras.json: wallpaper=true`. Jika masih hitam:
+That black wallpaper is Windows Server default, not XyDesk. XyDesk only hosts the RDP — `mstsc` & XyDesk see the same session. The repo already includes `assets/wallpaper.jpg` + `wallpaper-win11.jpg` + `rdp-extras.json: wallpaper=true`. If still black:
 
-- **Client matikan wallpaper** (paling sering):  
-  - `mstsc` → `Show Options` → `Experience` → centang `Desktop background / Wallpaper`  
-  - `XyDesk Remote` → `Settings` → `Wallpaper` → **ON** (OFF = sengaja hitam irit 30% bandwidth)
-- **Fix `1c0b668`:** `setup-xydesk.ps1` sekarang set `fNoRemoteDesktopWallpaper=0` + `WallpaperStyle=10` via Policy (tanpa tulis `WinStations` biar `3389` gak mati) → run berikutnya wallpaper **pasti tampil** kalau client ON. Upload baru via dashboard `Settings → Upload Wallpaper` juga langsung kepasang.
+- Client often disabled wallpaper:
+  - `mstsc` → `Show Options` → `Experience` → check `Desktop background / Wallpaper`
+  - `XyDesk Remote` → `Settings` → `Wallpaper` → **ON** (OFF = intentionally black to save ~30% bandwidth)
+- Fix `1c0b668`: `setup-xydesk.ps1` now sets `fNoRemoteDesktopWallpaper=0` + `WallpaperStyle=10` via Policy (without writing `WinStations` so `3389` won’t stop) → next run wallpaper **will display** if client ON. New upload via dashboard `Settings → Upload Wallpaper` also applies immediately.
 
-**Mikrofon — BISA & SUDAH AKTIF:**
-- Host sekarang: `fDisableAudio=0` + `fDisableAudioCapture=0` + `AudioQualityMode=2 (High)` + `AudioEndpointBuilder` jalan (Policy override). Log: `mic HP redirect aktif`.
-- **XyDesk:** HP → `Settings` → `Apps` → `XyDesk` → `Permissions` → `Microphone Allow` → XyDesk → `Settings` → `Enable Microphone ON` → di RDP `mmsys.cpl` → `Recording` → `Remote Audio` → test `Sound Recorder`.
-- **mstsc:** edit `.rdp` tambah `audiomode:i:0` + `audiocapturemode:i:1` + `microphone:redirection:i:1`.
+Microphone — POSSIBLE & NOW ENABLED:
+- Host now: `fDisableAudio=0` + `fDisableAudioCapture=0` + `AudioQualityMode=2 (High)` + `AudioEndpointBuilder` running (Policy override). Log: `mic HP redirect active`.
+- XyDesk: Phone → `Settings` → `Apps` → `XyDesk` → `Permissions` → Allow `Microphone` → XyDesk → `Settings` → `Enable Microphone ON` → in RDP open `mmsys.cpl` → `Recording` → `Remote Audio` → test with `Sound Recorder`.
+- mstsc: edit `.rdp` add `audiomode:i:0` + `audiocapturemode:i:1` + `microphone:redirection:i:1`.
 
-## 5. SAMP — Pasti Bisa (YouTube + Link Valid, Gak Ngerti Pun Jadi) — Update Terbaru
+## 5. SAMP — Definitely Works (YouTube + Valid Links, works even if you’re unsure) — Latest Update
 
-**SAMP gratis, GTA SA wajib punya sendiri (backup legal).** Script kita auto pasang SAMP client + DirectPlay + VC++ + DirectX anti-DxError + shortcut + firewall. Kamu cuma sediakan GTA SA.
+SAMP is free; you must have GTA SA yourself (keep a legal backup). Our script auto-installs SAMP client + DirectPlay + VC++ + DirectX anti-DxError + shortcut + firewall. You only provide GTA SA.
 
-**Cara A paling gampang — Otomatis via `GTA_SA_URL` (1 klik):**
-1. Upload ZIP GTA SA portable milikmu (isi `gta_sa.exe` + `models`/`data` ~2-4GB) ke **Google Drive** → Share → `Anyone with the link` → Copy link `https://drive.google.com/file/d/1AbC.../view` (Dropbox `?dl=1` / MediaFire juga bisa)
-2. Repo fork → `Settings` → `Secrets and variables` → `Actions` → `New secret` → Name `GTA_SA_URL` → Value paste link (script auto jadi `https://drive.google.com/uc?export=download&id=...` + handle `confirm token`)
-3. Dashboard / Actions → `RdpFree — RDP 6 Jam` → `Run workflow` → `samp: ya`, `samp_extra: ya` → Start. Log ` Setup GTA SAMP` akan `Download → ekstrak ke D:\Games\GTA San Andreas → SA-MP install → shortcut GTA SAMP.lnk di Desktop`.
+Method A — Easiest — Automatic via `GTA_SA_URL` (1 click):
+1. Upload your portable GTA SA ZIP (contains `gta_sa.exe` + `models`/`data` ~2–4GB) to Google Drive → Share → `Anyone with the link` → Copy link `https://drive.google.com/file/d/1AbC.../view` (Dropbox `?dl=1` / MediaFire also OK)
+2. Fork repo → `Settings` → `Secrets and variables` → `Actions` → `New secret` → Name `GTA_SA_URL` → Value paste the link (script auto-converts to `https://drive.google.com/uc?export=download&id=...` + handles confirm token)
+3. Dashboard / Actions → `RdpFree — RDP 6 Jam` → `Run workflow` → `samp: ya`, `samp_extra: ya` → Start. Log ` Setup GTA SAMP` will `Download → extract to D:\Games\GTA San Andreas → SA-MP install → GTA SAMP.lnk shortcut on Desktop`.
 
-**Cara B — Manual via RDP (kalau gak pakai link):**
-1. Start tanpa `GTA_SA_URL` → connect XyDesk/mstsc
-2. Di dalam RDP buka Chrome → download GTA SA portable kamu, atau dari PC: `mstsc` → `Show Options` → `Local Resources` → `More` → centang `Drives C:` → di RDP buka `\\tsclient\C` → copy folder `GTA San Andreas` ke `D:\Games\GTA San Andreas`
-3. Shortcut `GTA SAMP.lnk` sudah ada di Desktop → double klik `samp.exe` → connect server.
+Method B — Manual via RDP (if not using a link):
+1. Start without `GTA_SA_URL` → connect via XyDesk/mstsc
+2. Inside RDP open Chrome → download your portable GTA SA, or from your PC: `mstsc` → `Show Options` → `Local Resources` → `More` → check `Drives C:` → in RDP open `\\tsclient\C` → copy `GTA San Andreas` folder to `D:\Games\GTA San Andreas`
+3. `GTA SAMP.lnk` shortcut is already on Desktop → double-click `samp.exe` → connect to server.
 
-**Link SAMP valid (script coba semua mirror otomatis, gak perlu manual):**
+SAMP links are valid (script tries all mirrors automatically, no manual action needed):
 - `https://files.sa-mp.com/sa-mp-0.3.7-R5-1-MP-install.exe` (official)
-- `https://sa-mp.mp/downloads/` (mirror baru official)
+- `https://sa-mp.mp/downloads/` (new official mirror)
 - `https://gta-multiplayer.cz/downloads/sa-mp-0.3.7-R5-2-MP-install.exe`
-- Fallback scrape `sa-mp.com/download.php` + `gta-multiplayer.cz` — kalau mau manual di RDP buka `https://sa-mp.mp/downloads/` → 0.3.7-R5-1 → install ke `D:\Games\GTA San Andreas`.
+- Fallback scrapes `sa-mp.com/download.php` + `gta-multiplayer.cz` — if you want manual, open `https://sa-mp.mp/downloads/` in RDP → 0.3.7-R5-1 → install to `D:\Games\GTA San Andreas`.
 
-**YouTube tutor paling jelas:**
+Best YouTube tutorials:
 - How to play GTA SAMP 2024 → https://www.youtube.com/watch?v=OHwnAK9SvFY
-- SAMP Setup Guide (0:22 instalasi) → https://www.youtube.com/watch?v=GFWaoZnkRKM
-- Cari `cara pasang GTA SAMP` — intinya `GTA 1.0 US` + `sa-mp-0.3.7-R5-1-MP-install.exe` → pilih folder GTA → samp.exe. Wajib `GTA SA 1.0 US` (gta_sa.exe ~14MB), downgrade kalau Steam.
+- SAMP Setup Guide (0:22 installation) → https://www.youtube.com/watch?v=GFWaoZnkRKM
+- Search `cara pasang GTA SAMP` — essentially `GTA 1.0 US` + `sa-mp-0.3.7-R5-1-MP-install.exe` → point to GTA folder → samp.exe. Must be `GTA SA 1.0 US` (gta_sa.exe ~14MB), downgrade if Steam.
 
-**Kalau masih DxError:** sudah anti-DxError — script cek `d3dx9_43.dll` dulu, skip Jun2010 kalau sudah ada, WARP backup. Log `skip (sudah ada)` bukan gagal.
+If still DxError: anti-DxError is implemented — script checks `d3dx9_43.dll` first, skips Jun2010 if already present, WARP fallback. Log `skip (already present)` is not a failure.
 
-## 6. Info lain
+## 6. Other info
 
-- **Roblox Player gak kebuka:** runner Hyper-V → anti-cheat block. Pakai **Roblox Studio** saja.
-- **Minecraft 20 fps:** 2 vCPU + Mesa software. Set `rdp-extras.json` → `lightweight_mode:true`, `translucent:false`, `win10_look:false`, pakai Sodium.
+- Roblox Player won’t open: Hyper-V runner → anti-cheat block. Use **Roblox Studio** instead.
+- Minecraft 20 fps: 2 vCPU + Mesa software renderer. Set `rdp-extras.json` → `lightweight_mode:true`, `translucent:false`, `win11_look:false`, use Sodium.
 
 ---
-Credit: **KallAncrit** • RdpFree • Web tidak ikut ke fork — cuma repo script.
-**Update `d5e554f` — Disk lega maksimal + DirectX anti-DxError:**
-- `optimize-storage.ps1` default **full debloat** (bukan ringan): Edge **beneran dihapus paksa** (folder `Edge`/`EdgeCore` + semua shortcut `*Edge*.lnk` di `Public/Desktop`/`Default/Desktop`/`Start Menu` HABIS), Unity Hub/Editor + R + OneDrive + Xbox + Clipchamp Appx HABIS, plus `DeliveryOptimization cache`, `vcpkg`, `hostedtoolcache/stack` — free **110-140GB** (log `Edge: BERHASIL dihapus HABIS`). WebView2 tetap dipertahankan biar app tidak error. Chrome tidak wajib lagi — Edge tetap dihapus kalau `full`.
-- `setup-samp.ps1` DirectX **anti-DxError**: cek `d3dx9_43.dll` dulu (skip jika sudah ada), extract `Jun2010` dengan exit code + baca `C:\Windows\Logs\DirectX.log`, kalau `DxError` → fallback `WARP` (`skip` tidak fatal, GTA SA tetap jalan software). Jadi tidak lagi error install.
-- Default `RDP_USER` tetap `xyadmin` (bukan `runneradmin`). Pakai `runneradmin` hanya jika kamu isi `RDP_USER=runneradmin` di workflow (highest bawaan). Jadi **jangan pakai runneradmin** kalau mau user terpisah — biarin default.
+Credit: **KallAncrit** • RdpFree • Web not included in the fork — only the script repo.
+Update `d5e554f` — Maximum disk cleanup + DirectX anti-DxError:
+- `optimize-storage.ps1` default is **full debloat** (not light): Edge is **forcefully removed** (folders `Edge`/`EdgeCore` + all `*Edge*.lnk` shortcuts in `Public/Desktop`/`Default/Desktop`/`Start Menu` GONE), Unity Hub/Editor + R + OneDrive + Xbox + Clipchamp Appx GONE, plus `DeliveryOptimization cache`, `vcpkg`, `hostedtoolcache/stack` — frees **110–140GB** (log `Edge: SUCCESS removed ALL`). WebView2 is retained so apps won’t error. Chrome is not required anymore — Edge will still be removed if `full`.
+- `setup-samp.ps1` DirectX **anti-DxError**: checks `d3dx9_43.dll` first (skip if present), extracts `Jun2010` with exit code + reads `C:\Windows\Logs\DirectX.log`, if `DxError` → fallback `WARP` (`skip` is not fatal, GTA SA still runs in software). So installs no longer fail.
+- Default `RDP_USER` remains `xyadmin` (not `runneradmin`). Use `runneradmin` only if you set `RDP_USER=runneradmin` in the workflow (highest built-in). So **don’t use runneradmin** if you want separate users — keep the default.
 
-**Update `5c7df72` — REVISI TOTAL web login (orang udah login masih nampilin login):**
-- Backend `api/index.js`: `cookieHeader` Secure via `x-forwarded-proto` + `VERCEL_ENV` (sebelumnya kadang tidak kekirim), `ghUserDebug` reason (`no_cookie`, `unseal_failed`, `expired`), `/auth/status` return `debug` + sliding refresh `ghs` 30d jika sisa <7d (sebelumnya langsung expired logout), semua `Set-Cookie` pakai `req`.
-- Frontend `index.html`: `boot()` timeout 7s + retry 2x, fallback `localStorage 12h`, tidak langsung `showLogin` saat network 500, `api()` `credentials:include` + `me_at`, `showLogin` tampilkan debug di `ghNote`.
+Update `5c7df72` — TOTAL REVISION of web login (users already logged in still showed login):
+- Backend `api/index.js`: `cookieHeader` Secure via `x-forwarded-proto` + `VERCEL_ENV` (previously sometimes not sent), `ghUserDebug` reason (`no_cookie`, `unseal_failed`, `expired`), `/auth/status` returns `debug` + sliding refresh `ghs` 30d if remaining <7d (previously expired immediately on logout), all `Set-Cookie` use `req`.
+- Frontend `index.html`: `boot()` timeout 7s + retry 2x, fallback `localStorage 12h`, do not immediately `showLogin` on network 500, `api()` `credentials:include` + `me_at`, `showLogin` displays debug in `ghNote`.
 
-Live: `xyrdp-dash.vercel.app` (Vercel `5c7df72`) + workflow `1c0b668` wallpaper/mic + `d5e554f` disk/DirectX + `5c7df72` web revisi total.
+Live: `xyrdp-dash.vercel.app` (Vercel `5c7df72`) + workflow `1c0b668` wallpaper/mic + `d5e554f` disk/DirectX + `5c7df72` web total revision.

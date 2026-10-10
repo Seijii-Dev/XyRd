@@ -30,7 +30,7 @@ export async function finishSetup(c:Context){
   const keep=root.tree.filter(x=>!["web","web-next","deploy"].includes(x.path)).map(({path,mode,type,sha})=>({path,mode,type,sha}));
   if(keep.length!==root.tree.length){
    const tree=await gh<{sha:string}>(c,"/git/trees","POST",{tree:keep});
-   const next=await gh<{sha:string}>(c,"/git/commits","POST",{message:"chore: repository RDP tanpa dashboard web — credit KallAncrit",tree:tree.sha,parents:[ref.object.sha]});
+   const next=await gh<{sha:string}>(c,"/git/commits","POST",{message:"chore: repository RDP without web dashboard — credit KallAncrit",tree:tree.sha,parents:[ref.object.sha]});
    await gh(c,"/git/refs/heads/"+encodeURIComponent(branch),"PATCH",{sha:next.sha,force:false});
   }
  }

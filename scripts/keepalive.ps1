@@ -2,12 +2,12 @@
 $XyTag='RdpFree:session'
 . "$PSScriptRoot/lib-common.ps1"
 $st=Read-Status
-if (-not $st -or -not $st.expires_at) { throw 'Status sesi tidak memiliki expires_at' }
+if (-not $st -or -not $st.expires_at) { throw 'Status does not have expires_at' }
 $stop=[DateTimeOffset]::Parse($st.expires_at).UtcDateTime.AddMinutes(-2)
 $nextPublish=(Get-Date).ToUniversalTime().AddMinutes(5)
 while ((Get-Date).ToUniversalTime() -lt $stop) {
   $left=$stop-(Get-Date).ToUniversalTime()
-  Log "Sesi Tailscale berjalan; sisa $($left.ToString('hh\:mm'))"
+  Log "Tailscale session running; remaining $($left.ToString('hh\:mm'))"
   if ((Get-Date).ToUniversalTime() -ge $nextPublish) {
     Update-Status @{heartbeat_at=(Get-Date).ToUniversalTime().ToString('o')} | Out-Null
     & "$PSScriptRoot/publish-status.ps1" -Active $true
@@ -15,4 +15,4 @@ while ((Get-Date).ToUniversalTime() -lt $stop) {
   }
   Start-Sleep -Seconds ([int][Math]::Max(1,[Math]::Min(60,$left.TotalSeconds)))
 }
-Log 'Durasi selesai; lanjut finalize.'
+Log 'Duration finished; proceeding to finalize.'
