@@ -1,6 +1,6 @@
 {
-  "active": false,
-  "hostname": "rdpfree-6",
+  "active": true,
+  "hostname": "rdpfree-7",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
@@ -8,12 +8,12 @@
   "rdp_user": "xyadmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-11T02:34:54Z",
-  "expires_at": "2026-10-11T08:29:54Z",
+  "started_at": "2026-10-11T08:42:24Z",
+  "expires_at": "2026-10-11T14:37:24Z",
   "duration_menit": 355,
-  "run_id": "38105598815",
-  "run_number": "6",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38105598815",
+  "run_id": "38125727621",
+  "run_number": "7",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38125727621",
   "mode": "clean+win11",
   "xydesk": {
     "host": "ok",
@@ -44,22 +44,19 @@
     "admin": true
   },
   "akses": {
-    "mode": "tailscale",
     "tailscale": {
+      "ip": "100.73.36.89",
       "status": "ok",
-      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    }
+      "hostname": "rdpfree-7",
+      "magicdns": "rdpfree-7.tail4b745d.ts.net.",
+      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL."
+    },
+    "mode": "tailscale"
   },
   "media": {
-    "wallpaper": "xyverse_configured_for_user_logon",
-    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
+    "audio_output": "rdp_playback_enabled",
     "microphone": "rdp_capture_enabled",
-    "audio_output": "rdp_playback_enabled"
-  },
-  "heartbeat_at": "2026-10-11T08:26:36.2072095Z",
-  "stopped_at": "2026-10-11T08:27:55Z"
+    "wallpaper": "xyverse_configured_for_user_logon",
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
+  }
 }
