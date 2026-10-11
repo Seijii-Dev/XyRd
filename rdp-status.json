@@ -1,6 +1,6 @@
 {
-  "active": false,
-  "hostname": "rdpfree-5",
+  "active": true,
+  "hostname": "rdpfree-6",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
@@ -8,12 +8,12 @@
   "rdp_user": "xyadmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-11T02:16:31Z",
-  "expires_at": "2026-10-11T08:11:31Z",
+  "started_at": "2026-10-11T02:34:54Z",
+  "expires_at": "2026-10-11T08:29:54Z",
   "duration_menit": 355,
-  "run_id": "38104605094",
-  "run_number": "5",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38104605094",
+  "run_id": "38105598815",
+  "run_number": "6",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38105598815",
   "mode": "clean+win11",
   "xydesk": {
     "host": "ok",
@@ -39,27 +39,24 @@
     "wallpaper_file": "wallpaper.jpg",
     "vscode": "skip",
     "notepadpp": "skip",
-    "codex": "ok",
+    "chatgpt_codex": "ok",
     "codex_shortcut": "ok",
     "admin": true
   },
   "akses": {
+    "mode": "tailscale",
     "tailscale": {
       "status": "ok",
+      "ip": "100.64.253.9",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    },
-    "mode": "tailscale"
+      "hostname": "rdpfree-6",
+      "magicdns": "rdpfree-6.tail4b745d.ts.net."
+    }
   },
   "media": {
-    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "wallpaper": "xyverse_configured_for_user_logon",
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "microphone": "rdp_capture_enabled",
     "audio_output": "rdp_playback_enabled"
-  },
-  "heartbeat_at": "2026-10-11T02:27:49.0495608Z",
-  "stopped_at": "2026-10-11T02:31:41Z"
+  }
 }
