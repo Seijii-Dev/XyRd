@@ -119,10 +119,7 @@ $script:XyCfgDefaults = [ordered]@{
   vscode           = $false           # optional additional IDE
   notepadpp        = $false           # optional lightweight editor
   rdp_user         = 'xyadmin'        # default RDP username stored per-repo
-  storage_boost    = $true            # clean toolcache to free 70GB -> 120GB+
   debloat          = 'ringan'         # none / light / full (Edge)
-  samp             = $false           # install GTA SAMP (requires GTA_SA_URL or manual upload)
-  samp_extra       = $false           # silentpatch + widescreen fix
 }
 
 function Get-CfgBool([object]$o, [string]$n, [bool]$d) {
@@ -152,7 +149,7 @@ function Get-Cfg {
     $c | Add-Member -NotePropertyName $k -NotePropertyValue $script:XyCfgDefaults[$k] -Force
   }
   if ($j) {
-    foreach ($k in @('lightshot','translucent','wallpaper','win11_look','win11_badge','win11_wallpaper','xydesk_host','dark_theme','lightweight_mode','vscode','notepadpp','storage_boost','samp','samp_extra')) {
+    foreach ($k in @('lightshot','translucent','wallpaper','win11_look','win11_badge','win11_wallpaper','xydesk_host','dark_theme','lightweight_mode','vscode','notepadpp')) {
       $c.$k = Get-CfgBool $j $k $c.$k
     }
     $c.translucent_mode = (Get-CfgStr $j 'translucent_mode' $c.translucent_mode).ToLower()

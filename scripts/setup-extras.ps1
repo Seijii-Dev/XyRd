@@ -24,7 +24,7 @@ $u = if ($env:RDP_USER) { $env:RDP_USER } else { 'xyadmin' }
 $master = $true
 if ($env:EXTRAS) {
   $e = $env:EXTRAS.Trim().ToLower()
-  if (@('tidak', '0', 'false', 'no', 'off', 'skip', 'none') -contains $e) { $master = $false }
+  if (@('tidak', 'no', '0', 'false', 'off', 'skip', 'none') -contains $e) { $master = $false }
 }
 if (-not $master) {
   Log "EXTRAS='$env:EXTRAS' — all extra steps skipped."
@@ -121,7 +121,7 @@ if ($cfg.lightshot) {
     # ensure firewall allow
     try { New-NetFirewallRule -DisplayName 'Lightshot' -Direction Inbound -Program $lsExe -Action Allow -ErrorAction SilentlyContinue | Out-Null } catch {}
     try { Start-Process -FilePath $lsExe -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; $proc=Get-Process -Name 'Lightshot' -ErrorAction SilentlyContinue; if($proc){Log '  Lightshot process running'} else {Log '  Lightshot installed but process not running yet (will auto-run at login)'} } catch {}
-    # fix: Lightshot sometimes needs Visual C++ redist, installed in setup-samp, but check
+    # fix: Lightshot sometimes needs Visual C++ redist, installed by the base setup, but check
     $resLightshot = 'ok'
   } else {
     Log '  FAILED to install Lightshot (non-critical, session continues) - check winget/choco logs'

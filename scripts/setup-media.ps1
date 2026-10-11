@@ -4,7 +4,7 @@ $XyTag='RdpFree:media'
 $ErrorActionPreference = 'Stop'
 $root='C:\ProgramData\RdpFree'
 New-Item -ItemType Directory -Path $root -Force | Out-Null
-$mic=$env:MICROPHONE -ne 'tidak'
+$mic = $env:MICROPHONE -notin @('tidak','no','0','false','off')
 $wall=$true
 $policy='Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
 Set-Reg $policy 'fDisableAudio' 0 'DWord' | Out-Null

@@ -51,7 +51,7 @@ const ENV = {
 
 const STATUS_BRANCH = 'status';        // branch tempat workflow menulis rdp-status.json
 const EXTRAS_PATH = 'assets/rdp-extras.json';
-// Pause semua pembuatan/permintaan sesi baru sampai arsitektur RDP dinyatakan sesuai kebijakan host.
+// Pause new RDP session requests until the host architecture is policy-compliant.
 const RDP_START_PAUSED = String(process.env.RDP_START_PAUSED || 'false').toLowerCase() === 'true';
 const RDP_PAUSE_MESSAGE = 'Sesi RDP baru sedang dijeda. Jangan buat repo/secret baru atau dispatch workflow. GitHub-hosted Actions bukan layanan desktop RDP umum; baca /panduan untuk alasan, langkah pengamanan, dan banding resmi.';
 const EXTRAS_DEFAULTS = { lightshot: false, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win11_look: true, win11_badge: false, win11_wallpaper: true, xydesk_host: true, dark_theme: true, lightweight_mode: true, vscode: false, notepadpp: false, rdp_user: 'xyadmin' };
@@ -794,7 +794,6 @@ module.exports = async (req, res) => {
         akses: ['keduanya', 'tailscale', 'semua', 'rustdesk', 'tunnel'].includes(String(body.akses)) ? String(body.akses) : 'tailscale',
         tunnel_provider: ['otomatis', 'bore', 'ngrok'].includes(String(body.tunnel_provider)) ? String(body.tunnel_provider) : 'otomatis',
         win11: (body.win11 === 'tidak' ? 'tidak' : 'ya'),
-        grafis: (body.grafis === 'tidak' ? 'tidak' : 'software'),
       };
       await gh(ctx.token, 'POST', `/repos/${ctx.owner}/${ctx.repo}/actions/workflows/${ENV.workflow}/dispatches`, { ref: ctx.branch || ENV.branch, inputs });
       return send(200, { ok: true, inputs, repo: `${ctx.owner}/${ctx.repo}` });

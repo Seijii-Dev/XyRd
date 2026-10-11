@@ -63,7 +63,7 @@
     <ol>
       <li><b>Safest: manually fork first</b> on github.com → open <code>xykal/XyRDP</code> → <code>Use this template → Create a new repository</code> (name it <code>RdpFree</code>) → then sign into the dashboard (it will automatically use <code>your/RdpFree</code>).</li>
       <li>Do not spam "Create Repo" or "Start" — wait for runs to finish. If you create a new repo, wait 1–2 minutes before starting.</li>
-      <li>Set secrets <code>RDP_PASSWORD</code> & <code>TAILSCALE_AUTH_KEY</code> (do not share <code>tskey-auth-...</code> publicly). Optional: <code>GTA_SA_URL</code> for SAMP, <code>NGROK_AUTHTOKEN</code> if you use ngrok.</li>
+      <li>Set secrets <code>RDP_PASSWORD</code> & <code>TAILSCALE_AUTH_KEY</code> (do not share <code>tskey-auth-...</code> publicly). <code>NGROK_AUTHTOKEN</code> if you use ngrok.</li>
       <li>Do not use one account to create 5+ RDP repos within an hour — that pattern is most frequently flagged as spam.</li>
       <li>Dashboard login now persists for 30 days — no need to log in every refresh. If you're still prompted to log in: clear the <code>ghs/sid</code> cookies → log in again, or check Vercel's <code>SESSION_SECRET</code> (≥32 chars, avoid rotation). Logout → clear localStorage cache.</li>
     </ol>

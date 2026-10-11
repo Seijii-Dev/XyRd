@@ -1,4 +1,4 @@
-# XyRDP-SAMP ↔ XyDesk Remote (APK) Integration — Create RDP with 1x Ad
+# XyRDP-RDP ↔ XyDesk Remote (APK) Integration — Create RDP with 1x Ad
 
 > Purpose: User opens the XyDesk Remote APK → taps “RDP Free 6 Hours” → watches an ad 1x per device lifetime → can immediately Create RDP via WebView without leaving the APK. Remaining time on the dashboard is displayed as a large digital clock (not a progress bar).
 

@@ -1,7 +1,25 @@
-import {test} from 'node:test';
-import assert from 'node:assert/strict';
-import {defaults,choices,validate,migrateSettings} from '../src/lib/workflow';
-test('private Tailscale defaults and both Minecraft editions',()=>{assert.equal(defaults.akses,'tailscale');assert.deepEqual(choices.akses,['tailscale']);assert(!('tunnel_provider' in defaults));assert.equal(defaults.minecraft_java,'no');assert.equal(defaults.minecraft_bedrock,'no');assert.equal(validate({...defaults,microphone:'no'}).microphone,'no');});
-test('legacy settings migrate without enabling games on hosted runners',()=>{const m=migrateSettings({akses:'all',tunnel_provider:'ngrok',samp:'yes',hostname:'old-host'});assert.equal(m.akses,'tailscale');assert.equal(m.runner,'github');assert.equal(m.samp,'no');assert.equal(m.hostname,'old-host');assert(!('tunnel_provider' in m));});
-test('explicit self-hosted choice survives migration, public tunnels rejected on writes',()=>{assert.equal(migrateSettings({...defaults,runner:'self-hosted',samp:'yes'}).samp,'yes');assert.throws(()=>validate({akses:'tunnel'}));assert.throws(()=>validate({tunnel_provider:'ngrok'}));});
-test('wallpaper is automatic: old off/custom settings cannot override XyVerse',()=>{const migrated=migrateSettings({...defaults,wallpaper:'no',wallpaper_url:'https://example.com/custom.png'});assert(!('wallpaper' in migrated));assert(!('wallpaper_url' in migrated));assert(!('wallpaper' in choices));const saved=validate({...defaults,wallpaper:'no'});assert(!('wallpaper' in saved));});
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {defaults,choices,validate,migrateSettings} from "../src/lib/workflow";
+
+test("Tailscale and reduced settings defaults",()=>{
+  assert.equal(defaults.akses,"tailscale");
+  assert.deepEqual(choices.akses,["tailscale"]);
+  assert.equal(defaults.runner,"github");
+  assert.ok(!("storage_boost" in defaults));
+  assert.ok(!("samp" in defaults));
+  assert.equal(validate({...defaults,microphone:"no"}).microphone,"no");
+});
+
+test("legacy removed options are rejected",()=>{
+  assert.throws(()=>validate({...defaults,storage_boost:"ya"}));
+  assert.throws(()=>validate({...defaults,samp:"ya"}));
+});
+
+test("legacy access settings migrate to Tailscale",()=>{
+  const m=migrateSettings({akses:"all",tunnel_provider:"ngrok",hostname:"old-host"});
+  assert.equal(m.akses,"tailscale");
+  assert.equal(m.runner,"github");
+  assert.equal(m.hostname,"old-host");
+  assert.ok(!("tunnel_provider" in m));
+});

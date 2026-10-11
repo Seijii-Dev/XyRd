@@ -13,7 +13,7 @@ export async function POST(req:NextRequest){return guarded(async()=>{const c=awa
  const setup=await inspect(c);if(!setup.ready)throw new ApiError(400,"Complete repository Setup, Actions, and secrets first");
  const inputs=await loadSettings(c.repo);const valid=validate(inputs);
  const repo=await gh<{default_branch:string;permissions?:{push?:boolean}}>(c,"");if(!c.installationId&&!repo.permissions?.push)throw new ApiError(403,"Write access to the repository is required");
- if(valid.runner!=="self-hosted"&&["samp","roblox","minecraft_java","minecraft_bedrock"].some(k=>valid[k]==="ya"))throw new ApiError(400,"Game preparation requires a dedicated Windows self-hosted runner you own. Change Settings or disable the game.");
+
  const workflow=await gh<{content:string}>(c,"/contents/.github/workflows/rdp-6h.yml?ref="+encodeURIComponent(repo.default_branch));
  if(!Buffer.from(workflow.content,"base64").toString("utf8").includes("# rdpfree-workflow-schema: 3"))throw new ApiError(409,"Repository is still using an old workflow. Sync workflow, scripts, and assets from xykal/XyRDP before starting; the App does not have permission to write source.");
  const secrets=await gh<{secrets:{name:string}[]}>(c,"/actions/secrets?per_page=100");const names=secrets.secrets.map(s=>s.name);const required=["RDP_PASSWORD","TAILSCALE_AUTH_KEY"];const missing=required.filter(k=>!names.includes(k));if(missing.length)throw new ApiError(400,"Secrets are incomplete: "+missing.join(", "));

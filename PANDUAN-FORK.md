@@ -2,12 +2,12 @@
 
 Credit: KallAncrit. Follow the active [README](README.md).
 
-1. Use the `xykal/XyRDP` template with your chosen repository name.
-2. Enable Actions, then set `RDP_PASSWORD` and `TAILSCALE_AUTH_KEY` in Actions secrets or via the Setup dashboard.
-3. Access only via Tailscale. Sign your phone/PC into the same tailnet and allow TCP 3389 in the tailnet ACL.
-4. Choose settings and start a session. Do not print or save the password as a public artifact.
-5. For game preparation, use a dedicated/disposable self-hosted Windows machine that is permitted, not GitHub-hosted gaming. Ensure the runner labels `self-hosted`, `Windows`, `X64`, `rdpfree` and read the system change effects in the README.
+1. Create or select the repository that will hold the workflow.
+2. Enable GitHub Actions, then set `RDP_PASSWORD` and `TAILSCALE_AUTH_KEY` through the Setup dashboard or Actions secrets.
+3. Use private Tailscale access. Sign your phone/PC into the same tailnet and allow TCP 3389 in the tailnet ACL.
+4. Configure the session in Settings and start it from Home. Never print or save the password as a public artifact.
+5. Use a dedicated runner if you choose self-hosted mode. Do not run workflows from untrusted pull requests on a machine that changes Windows policies or applications.
 
-Older repositories need to sync workflow schema 2, scripts, and assets together. The app only has read access to the source so it cannot update those files automatically. The manual template also copies the web folder; owners may remove `web`, `web-next`, and `deploy` from the session repository if not needed.
+Older repositories should synchronize `.github/workflows/rdp-6h.yml`, `scripts/`, and `assets/` together. The app has read-only source access and cannot update those files silently.
 
-GitHub login identity and GitHub App authorization are two separate processes. Installing/approving the App applies only to the repositories you choose. There is no guarantee against suspension or universal support for games/VMs.
+GitHub identity login and GitHub App authorization are separate processes. Install the App only for repositories you intend to connect.

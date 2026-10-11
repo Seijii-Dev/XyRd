@@ -23,7 +23,7 @@ $XyTag = 'XyRDP:win11'
 
 # ---------- 0. master switch ----------
 $skip = $false
-if ($env:WIN11) { $e = $env:WIN11.Trim().ToLower(); if (@('tidak', '0', 'false', 'no', 'off', 'skip', 'none') -contains $e) { $skip = $true } }
+if ($env:WIN11) { $e = $env:WIN11.Trim().ToLower(); if (@('tidak', 'no', '0', 'false', 'off', 'skip', 'none') -contains $e) { $skip = $true } }
 $cfg = Get-Cfg
 if (-not $cfg.win11_look) { $skip = $true }
 if ($skip) {

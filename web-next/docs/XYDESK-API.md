@@ -52,7 +52,7 @@ RDP_PASSWORD is a GitHub Actions secret and **cannot be retrieved**. Prompt for 
 ## Settings
 
 Fields mirror `.github/workflows/rdp-6h.yml`:
-`durasi_menit`, `hostname`, `rdp_user`, `akses`, `tunnel_provider`, `storage_boost`, `debloat`, `samp`, `samp_extra`, `gta_sa_url`, `win11`, `xydesk`, `ekstra`, `grafis`, `wallpaper_url`.
+`durasi_menit`, `hostname`, `rdp_user`, `akses`, `debloat`, `win11`, `xydesk`, `ekstra`, `microphone`, and `runner`.
 
 Get allowed choice values from `/settings`, do not invent input names. Default user `xyadmin`; optional `runneradmin` is accepted. Workflow job timeout is 360 minutes including setup, so a requested 360-minute session is not a guarantee of 360 minutes of usable desktop time. Settings do not alter already running jobs.
 
@@ -85,22 +85,8 @@ Identity login and repository authorization are now separate. Users must complet
 
 Previously issued non-admin device tokens carrying OAuth grants are no longer accepted. Ask the user to complete app connection and create a replacement token. New tokens remain pinned to the chosen repo and exchange server-side for short-lived, repo-restricted installation tokens on each call. Admin-issued device grants are unchanged. No API exposes GitHub OAuth tokens, app private keys or installation access tokens to XyDesk.
 
-## Schema 2: Tailscale, media, game preparation
-
-Only `tailscale` is accepted for `akses`; `tunnel_provider` is removed. Persisted old settings migrate on read. `runner` is `github` or `self-hosted`; game preparation is rejected on hosted dispatch. New yes/no fields: `wallpaper`, `microphone`, `roblox`, `minecraft_java`, `minecraft_bedrock`. Existing `samp`, `gta_sa_url`, `samp_extra` remain. Self-hosted machine must be dedicated/disposable with labels `self-hosted`, `Windows`, `X64`, `rdpfree`.
-
-Status optionally includes `games`, `media`, `game_environment` only for the matching active, unexpired run. Connection always uses Tailscale IP + port 3389. Media reports configuration, not verified end-to-end functionality; game status reports preparation, not playability. No API for launching/stopping desktop game processes exists yet. Settings affect the next workflow run, not the active desktop.
-
-Dispatch checks workflow schema 2 and returns 409 for old source. Repository owners must update workflow, scripts and assets manually; Contents read permission is intentionally insufficient to do it silently. No password/Base64 credential artifacts or logs are produced by the new workflow.
-
-
-## Onboarding and repository deletion (2026-10-10)
-
-User sequence: identity login → create repo from template → allow the GitHub App to access that repo → choose repo → fill secrets → start session. The "My repo has been created" button only navigates the guide, not server verification. Repository selection verifies the workflow via GitHub.
-
-Delete feature is available at `/dashboard/connection` for the browser session of the personal-account repository owner, not for service admin login or XyDesk tokens. Server confirmation is valid for 5 minutes, bound to subject + repo + GitHub ID, single-use; the user must type the full name and agree to the impact. Active/queued workflows block deletion. Service source repositories are protected. After GitHub confirms deletion, mapping, settings, repo vault and all of the user's XyDesk tokens are cleaned up; login/App installation remains. No real repositories are deleted during testing; destructive API tests use mocks.
-
-Permission change: the old note "does not request Administration" applied to versions before the delete feature. The new manifest requests Administration write in addition to previous permissions. For already-registered Apps, the owner must add Administration: Read and write in Permissions & events, then the installation owner approves the update. GitHub does not provide delete-only permission; Administration includes authority to manage other repos as well. Use Only select repositories. Regular operation tokens still only have Contents/Metadata read, Actions/Secrets write; Administration is only requested for a temporary token restricted to one repo during the delete operation and revoked afterward. Contents remains read: this feature does not add source write capability.
+## Current workflow schema
+Only Tailscale access is accepted. Persisted legacy settings are migrated on read, but removed game and storage-boost options are rejected for new writes. Settings affect the next workflow run, not an active desktop.
 
 ### Schema 3 / automatic XyVerse wallpaper
 

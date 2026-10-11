@@ -33,7 +33,7 @@ $cfg = Get-Cfg
 $skip = -not $cfg.xydesk_host
 if ($env:XYDESK) {
   $e = $env:XYDESK.Trim().ToLower()
-  if (@('tidak', '0', 'false', 'no', 'off', 'skip', 'none') -contains $e) { $skip = $true }
+  if (@('tidak', 'no', '0', 'false', 'off', 'skip', 'none') -contains $e) { $skip = $true }
 }
 if ($skip) {
   Log 'XyDesk host setup skipped (input xydesk=no or xydesk_host=false in rdp-extras.json)'
