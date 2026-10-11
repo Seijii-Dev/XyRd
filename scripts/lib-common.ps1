@@ -118,8 +118,6 @@ $script:XyCfgDefaults = [ordered]@{
   lightweight_mode = $true            # disable only non-essential background services
   vscode           = $false           # optional additional IDE
   notepadpp        = $false           # optional lightweight editor
-  codex            = $true            # OpenAI Codex CLI
-  antigravity      = $true            # Google Antigravity IDE
   rdp_user         = 'xyadmin'        # default RDP username stored per-repo
   debloat          = 'yes'            # remove Microsoft Edge and Mozilla Firefox only
 }
@@ -151,7 +149,7 @@ function Get-Cfg {
     $c | Add-Member -NotePropertyName $k -NotePropertyValue $script:XyCfgDefaults[$k] -Force
   }
   if ($j) {
-    foreach ($k in @('lightshot','translucent','wallpaper','win11_look','win11_badge','win11_wallpaper','xydesk_host','dark_theme','lightweight_mode','vscode','notepadpp','codex','antigravity')) {
+    foreach ($k in @('lightshot','translucent','wallpaper','win11_look','win11_badge','win11_wallpaper','xydesk_host','dark_theme','lightweight_mode','vscode','notepadpp')) {
       $c.$k = Get-CfgBool $j $k $c.$k
     }
     $c.translucent_mode = (Get-CfgStr $j 'translucent_mode' $c.translucent_mode).ToLower()

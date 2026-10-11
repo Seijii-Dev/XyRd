@@ -12,8 +12,6 @@
   "lightweight_mode": true,
   "vscode": false,
   "notepadpp": false,
-  "codex": true,
-  "antigravity": true,
   "rdp_user": "xyadmin",
   "debloat": "yes"
 }

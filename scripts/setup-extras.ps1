@@ -8,7 +8,7 @@
 #    2) LIGHTSHOT   — automatic install (winget -> vendor installer), auto-run
 #    3) TRANSLUCENT — TranslucentTB (portable -> winget) + transparency effects
 #    4) WALLPAPER   — assets/wallpaper.* in repo (or WALLPAPER_URL)
-#    5) CODING AGENTS — official OpenAI Codex CLI + Google Antigravity IDE installers
+#    5) CODEX — automatic official OpenAI Codex CLI install + Public Desktop shortcut
 #    6) VERIFICATION — RDP user ensured to be member of Administrators group
 #    7) summarize results -> out/rdp-status.json (read by web dashboard)
 #
@@ -29,14 +29,14 @@ if ($env:EXTRAS) {
 }
 if (-not $master) {
   Log "EXTRAS='$env:EXTRAS' — all extra steps skipped."
-  Update-Status @{ extras = @{ lightshot = 'skip'; translucent = 'skip'; wallpaper = 'skip'; wallpaper_file = ''; vscode = 'skip'; notepadpp = 'skip'; codex = 'skip'; antigravity = 'skip'; admin = $true } } | Out-Null
+  Update-Status @{ extras = @{ lightshot = 'skip'; translucent = 'skip'; wallpaper = 'skip'; wallpaper_file = ''; vscode = 'skip'; notepadpp = 'skip'; codex = 'skip'; codex_shortcut = 'skip'; admin = $true } } | Out-Null
   exit 0
 }
 
 # ---------- 1. Configuration ----------
 $cfg = Get-Cfg
 if ($env:WALLPAPER_URL) { Log 'WALLPAPER_URL provided from workflow input — overrides file in repo' }
-Log "lightshot=$($cfg.lightshot) | translucent=$($cfg.translucent) ($($cfg.translucent_mode)) | wallpaper=$($cfg.wallpaper) | win11_look=$($cfg.win11_look) | VSCode=$($cfg.vscode) | Notepad++=$($cfg.notepadpp) | Codex=$($cfg.codex) | Antigravity=$($cfg.antigravity)"
+Log "lightshot=$($cfg.lightshot) | translucent=$($cfg.translucent) ($($cfg.translucent_mode)) | wallpaper=$($cfg.wallpaper) | win11_look=$($cfg.win11_look) | VSCode=$($cfg.vscode) | Notepad++=$($cfg.notepadpp)"
 
 # Apply theme even if the user disabled the Win11 visual step.
 $themeMode = if ($cfg.dark_theme) { 0 } else { 1 }
@@ -295,13 +295,17 @@ if ($cfg.notepadpp) {
   }
 }
 
-# ---------- 3c. CODING AGENTS ----------------------------------------------
+# ---------- 3c. CODEX --------------------------------------------------------
 function Find-Codex {
-  $cmd = Get-Command codex.exe -ErrorAction SilentlyContinue
-  if ($cmd) { return $cmd.Source }
+  foreach ($cmdName in @('codex.exe', 'codex.cmd')) {
+    $cmd = Get-Command $cmdName -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+  }
   foreach ($c in @(
     (Join-Path $env:USERPROFILE '.codex\bin\codex.exe'),
-    (Join-Path $env:LOCALAPPDATA 'codex\bin\codex.exe')
+    (Join-Path $env:USERPROFILE '.codex\bin\codex.cmd'),
+    (Join-Path $env:LOCALAPPDATA 'codex\bin\codex.exe'),
+    (Join-Path $env:LOCALAPPDATA 'codex\bin\codex.cmd')
   )) { if ($c -and (Test-Path $c)) { return $c } }
   return $null
 }
@@ -311,7 +315,7 @@ function Install-Codex {
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command 'irm https://chatgpt.com/codex/install.ps1 | iex' 2>&1 | ForEach-Object { Log "  $_" }
     Start-Sleep -Seconds 2
     $found = Find-Codex
-    if ($found) { Log "  Codex installed: $found"; return $true }
+    if ($found) { Log "  Codex installed: $found"; return $found }
   } catch { Log "  official Codex installer failed: $($_.Exception.Message)" }
   if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
     try {
@@ -319,50 +323,43 @@ function Install-Codex {
       & npm.cmd install --global @openai/codex 2>&1 | ForEach-Object { Log "  $_" }
       Start-Sleep -Seconds 2
       $found = Find-Codex
-      if ($found) { Log "  Codex installed via npm: $found"; return $true }
+      if ($found) { Log "  Codex installed via npm: $found"; return $found }
     } catch { Log "  Codex npm fallback failed: $($_.Exception.Message)" }
   }
-  return $false
-}
-$resCodex = 'skip'
-if ($cfg.codex) {
-  if (Find-Codex) { $resCodex = 'already present'; Log 'CODEX: already installed' }
-  else { $resCodex = if (Install-Codex) { 'ok' } else { 'failed' }; Log "  Codex: $resCodex" }
-}
-
-function Find-AntigravityIDE {
-  foreach ($c in @(
-    (Join-Path $env:LOCALAPPDATA 'Programs\Antigravity IDE\Antigravity IDE.exe'),
-    (Join-Path $env:LOCALAPPDATA 'Programs\Antigravity IDE\Antigravity.exe'),
-    (Join-Path $env:ProgramFiles 'Antigravity IDE\Antigravity IDE.exe'),
-    (Join-Path ${env:ProgramFiles(x86)} 'Antigravity IDE\Antigravity IDE.exe')
-  )) { if ($c -and (Test-Path $c)) { return $c } }
-  $cmd = Get-Command 'Antigravity IDE.exe' -ErrorAction SilentlyContinue
-  if ($cmd) { return $cmd.Source }
   return $null
 }
-function Install-AntigravityIDE {
-  $installer = Join-Path $env:RUNNER_TEMP 'antigravity-ide-x64.exe'
-  $url = 'https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/2.5.5-4923483625488384/windows-x64/Antigravity%20IDE.exe'
+function New-CodexDesktopShortcut([string]$CodexPath) {
   try {
-    Log 'ANTIGRAVITY IDE: downloading the official standalone Windows x64 installer...'
-    if (-not (Get-File $url $installer 300)) { Log '  official Antigravity IDE download failed'; return $false }
-    if ((Get-Item $installer).Length -lt 10MB) { Log '  Antigravity IDE installer is unexpectedly small'; return $false }
-    # The official standalone IDE installer supports silent installation. Do not launch the IDE;
-    # Google-account sign-in remains an interactive user action after RDP connects.
-    Start-Process -FilePath $installer -ArgumentList '/S' -Wait -WindowStyle Hidden
-    Start-Sleep -Seconds 4
-    $found = Find-AntigravityIDE
-    if ($found) { Log "  Antigravity IDE installed: $found"; return $true }
-    Log '  installer completed but the standalone Antigravity IDE executable was not found'
-  } catch { Log "  Antigravity IDE install failed: $($_.Exception.Message)" }
-  return $false
+    $desktop = Join-Path $env:PUBLIC 'Desktop'
+    New-Item -ItemType Directory -Path $desktop -Force | Out-Null
+    $shortcutPath = Join-Path $desktop 'OpenAI Codex.lnk'
+    $shell = New-Object -ComObject WScript.Shell
+    $shortcut = $shell.CreateShortcut($shortcutPath)
+    if ($CodexPath -match '(?i)\.(cmd|bat)$') {
+      $shortcut.TargetPath = $env:ComSpec
+      $shortcut.Arguments = '/k ""' + $CodexPath + '""'
+    } else {
+      $shortcut.TargetPath = $CodexPath
+      $shortcut.Arguments = ''
+    }
+    $shortcut.WorkingDirectory = if ($env:GITHUB_WORKSPACE) { $env:GITHUB_WORKSPACE } else { $env:USERPROFILE }
+    $shortcut.Description = 'OpenAI Codex CLI'
+    $shortcut.Save()
+    Log "  Desktop shortcut created: $shortcutPath"
+    return $true
+  } catch {
+    Log "  Codex Desktop shortcut failed: $($_.Exception.Message)"
+    return $false
+  }
 }
-$resAntigravity = 'skip'
-if ($cfg.antigravity) {
-  if (Find-AntigravityIDE) { $resAntigravity = 'already present'; Log 'ANTIGRAVITY IDE: already installed' }
-  else { $resAntigravity = if (Install-AntigravityIDE) { 'ok' } else { 'failed' }; Log "  Antigravity: $resAntigravity" }
+$resCodex = 'failed'; $resCodexShortcut = 'failed'; $codexPath = Find-Codex
+if ($codexPath) {
+  $resCodex = 'already present'; Log "CODEX: already installed at $codexPath"
+} else {
+  $codexPath = Install-Codex
+  if ($codexPath) { $resCodex = 'ok' } else { Log 'CODEX: installation failed (non-critical; session continues)' }
 }
+if ($codexPath) { $resCodexShortcut = if (New-CodexDesktopShortcut $codexPath) { 'ok' } else { 'failed' } }
 # ---------- 4. WALLPAPER ----------
 function Set-WallpaperLive([string]$imgPath) {
   try {
@@ -459,13 +456,13 @@ Update-Status @{ extras = [ordered]@{
     vscode         = $resVSCode
     notepadpp      = $resNotepadPP
     codex          = $resCodex
-    antigravity    = $resAntigravity
+    codex_shortcut = $resCodexShortcut
     admin          = $adminOk
 } } | Out-Null
 Close-DefaultHive
 
 $adminTxt = $(if ($adminOk) { 'YES' } else { 'NO' })
-Log ("DONE — lightshot={0} translucent={1} wallpaper={2} codex={3} antigravity={4} admin={5}" -f $resLightshot, $resTrans, $resWall, $resCodex, $resAntigravity, $adminTxt)
+Log ("DONE — lightshot={0} translucent={1} wallpaper={2} codex={3} shortcut={4} admin={5}" -f $resLightshot, $resTrans, $resWall, $resCodex, $resCodexShortcut, $adminTxt)
 try { Probe-Rdp 'end step' | Out-Null } catch {}
 
 exit 0

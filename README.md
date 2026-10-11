@@ -18,7 +18,7 @@ The default RDP username is `xyadmin`. The workflow can change Windows policies 
 - Windows 11 appearance settings on the `windows-2025` runner.
 - Private Tailscale access to RDP port 3389.
 - XyDesk Remote host setup with audio and microphone support.
-- Automatic XyVerse wallpaper, optional desktop extras, OpenAI Codex CLI, and the standalone Google Antigravity IDE.
+- Automatic XyVerse wallpaper, optional desktop extras, OpenAI Codex CLI with a Public Desktop shortcut.
 - Repository-bound dashboard and native API device tokens.
 
 **Games and storage boost have been removed.** They are no longer available in the workflow, dashboard, API settings, scripts, or documentation.
