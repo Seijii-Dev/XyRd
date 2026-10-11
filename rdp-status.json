@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "hostname": "rdpfree-7",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -45,11 +45,12 @@
   },
   "akses": {
     "tailscale": {
-      "ip": "100.73.36.89",
       "status": "ok",
-      "hostname": "rdpfree-7",
-      "magicdns": "rdpfree-7.tail4b745d.ts.net.",
-      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL."
+      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
+      "ip": "",
+      "magicdns": "",
+      "hostname": "",
+      "funnel_addr": ""
     },
     "mode": "tailscale"
   },
@@ -59,5 +60,6 @@
     "wallpaper": "xyverse_configured_for_user_logon",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
   },
-  "heartbeat_at": "2026-10-11T14:32:19.1738632Z"
+  "heartbeat_at": "2026-10-11T14:32:19.1738632Z",
+  "stopped_at": "2026-10-11T14:35:25Z"
 }
