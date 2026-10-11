@@ -1,30 +1,20 @@
 {
-  "active": false,
-  "hostname": "muhamed-4",
+  "active": true,
+  "hostname": "rdpfree-5",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
   "rdp_port": 3389,
-  "rdp_user": "admin",
+  "rdp_user": "xyadmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-11T02:09:49Z",
-  "expires_at": "2026-10-11T08:04:49Z",
+  "started_at": "2026-10-11T02:16:31Z",
+  "expires_at": "2026-10-11T08:11:31Z",
   "duration_menit": 355,
-  "run_id": "38104236975",
-  "run_number": "4",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38104236975",
+  "run_id": "38104605094",
+  "run_number": "5",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38104605094",
   "mode": "clean+win11",
-  "akses": {
-    "mode": "tailscale",
-    "tailscale": {
-      "status": "pending",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    }
-  },
   "xydesk": {
     "host": "ok",
     "denyts": "ok",
@@ -42,5 +32,31 @@
     "akses": "(pending)",
     "note": "Host ready for XyDesk Remote clients in Full RDP Connection mode (Host+Port tunnel). WinStations\\RDP-Tcp keys are intentionally NOT written so the 3389 listener does not die in the GitHub runner."
   },
-  "stopped_at": "2026-10-11T02:12:52Z"
+  "extras": {
+    "lightshot": "skip",
+    "translucent": "ok",
+    "wallpaper": "ok",
+    "wallpaper_file": "wallpaper.jpg",
+    "vscode": "skip",
+    "notepadpp": "skip",
+    "codex": "ok",
+    "codex_shortcut": "ok",
+    "admin": true
+  },
+  "akses": {
+    "tailscale": {
+      "hostname": "rdpfree-5",
+      "magicdns": "rdpfree-5.tail4b745d.ts.net.",
+      "ip": "100.83.160.70",
+      "status": "ok",
+      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL."
+    },
+    "mode": "tailscale"
+  },
+  "media": {
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
+    "wallpaper": "xyverse_configured_for_user_logon",
+    "microphone": "rdp_capture_enabled",
+    "audio_output": "rdp_playback_enabled"
+  }
 }
