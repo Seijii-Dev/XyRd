@@ -119,7 +119,7 @@ $script:XyCfgDefaults = [ordered]@{
   vscode           = $false           # optional additional IDE
   notepadpp        = $false           # optional lightweight editor
   rdp_user         = 'xyadmin'        # default RDP username stored per-repo
-  debloat          = 'ringan'         # none / light / full (Edge)
+  debloat          = 'yes'            # remove Microsoft Edge and Mozilla Firefox only
 }
 
 function Get-CfgBool([object]$o, [string]$n, [bool]$d) {

@@ -52,7 +52,7 @@ RDP_PASSWORD is a GitHub Actions secret and **cannot be retrieved**. Prompt for 
 ## Settings
 
 Fields mirror `.github/workflows/rdp-6h.yml`:
-`durasi_menit`, `hostname`, `rdp_user`, `akses`, `debloat`, `win11`, `xydesk`, `ekstra`, `microphone`, and `runner`.
+`durasi_menit`, `hostname`, `rdp_user`, `akses`, `debloat`, `win11`, `xydesk`, `ekstra`, `microphone`, and `runner`. The `debloat` option removes only Microsoft Edge and Mozilla Firefox; it does not remove OneDrive, Xbox, AppX packages, or other Windows components.
 
 Get allowed choice values from `/settings`, do not invent input names. Default user `xyadmin`; optional `runneradmin` is accepted. Workflow job timeout is 360 minutes including setup, so a requested 360-minute session is not a guarantee of 360 minutes of usable desktop time. Settings do not alter already running jobs.
 

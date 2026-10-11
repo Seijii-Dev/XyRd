@@ -37,13 +37,12 @@ name: RdpFree — 6-Hour RDP
         options:
         - tailscale
       debloat:
-        description: 'Debloat: remove large built-in apps (light=OneDrive/Xbox/Appx, full=Edge too (~1.5GB)). Edge is removed only when Chrome is installed'
+        description: 'Debloat: remove Microsoft Edge and Mozilla Firefox only'
         required: false
-        default: light
+        default: 'yes'
         type: choice
         options:
-        - light
-        - full
+        - 'yes'
         - 'no'
       win11:
         description: Windows 11 appearance (hosted windows-2025 target; use self-hosted for a pinned Windows 11 machine)
@@ -135,6 +134,12 @@ jobs:
       timeout-minutes: 15
       shell: pwsh
       run: ./scripts/setup-rdp.ps1
+    - name: Remove Microsoft Edge and Mozilla Firefox only
+      if: ${{ inputs.debloat != 'no' }}
+      timeout-minutes: 10
+      continue-on-error: true
+      shell: pwsh
+      run: ./scripts/setup-debloat.ps1
     - name: Windows 11 appearance (personalization and wallpaper)
       if: ${{ inputs.win11 != 'no' }}
       timeout-minutes: 15
