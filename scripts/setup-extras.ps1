@@ -8,8 +8,9 @@
 #    2) LIGHTSHOT   — automatic install (winget -> vendor installer), auto-run
 #    3) TRANSLUCENT — TranslucentTB (portable -> winget) + transparency effects
 #    4) WALLPAPER   — assets/wallpaper.* in repo (or WALLPAPER_URL)
-#    5) VERIFICATION — RDP user ensured to be member of Administrators group
-#    6) summarize results -> out/rdp-status.json (read by web dashboard)
+#    5) CODING AGENTS — official OpenAI Codex CLI + Google Antigravity IDE installers
+#    6) VERIFICATION — RDP user ensured to be member of Administrators group
+#    7) summarize results -> out/rdp-status.json (read by web dashboard)
 #
 #  Note: VM is disposable. Per-user settings are written to Default profile
 #  (C:\Users\Default\NTUSER.DAT) so they activate automatically when RDP user logs in.
@@ -28,14 +29,14 @@ if ($env:EXTRAS) {
 }
 if (-not $master) {
   Log "EXTRAS='$env:EXTRAS' — all extra steps skipped."
-  Update-Status @{ extras = @{ lightshot = 'skip'; translucent = 'skip'; wallpaper = 'skip'; wallpaper_file = ''; vscode = 'skip'; notepadpp = 'skip'; admin = $true } } | Out-Null
+  Update-Status @{ extras = @{ lightshot = 'skip'; translucent = 'skip'; wallpaper = 'skip'; wallpaper_file = ''; vscode = 'skip'; notepadpp = 'skip'; codex = 'skip'; antigravity = 'skip'; admin = $true } } | Out-Null
   exit 0
 }
 
 # ---------- 1. Configuration ----------
 $cfg = Get-Cfg
 if ($env:WALLPAPER_URL) { Log 'WALLPAPER_URL provided from workflow input — overrides file in repo' }
-Log "lightshot=$($cfg.lightshot) | translucent=$($cfg.translucent) ($($cfg.translucent_mode)) | wallpaper=$($cfg.wallpaper) | win11_look=$($cfg.win11_look) | VSCode=$($cfg.vscode) | Notepad++=$($cfg.notepadpp)"
+Log "lightshot=$($cfg.lightshot) | translucent=$($cfg.translucent) ($($cfg.translucent_mode)) | wallpaper=$($cfg.wallpaper) | win11_look=$($cfg.win11_look) | VSCode=$($cfg.vscode) | Notepad++=$($cfg.notepadpp) | Codex=$($cfg.codex) | Antigravity=$($cfg.antigravity)"
 
 # Apply theme even if the user disabled the Win11 visual step.
 $themeMode = if ($cfg.dark_theme) { 0 } else { 1 }
@@ -294,6 +295,74 @@ if ($cfg.notepadpp) {
   }
 }
 
+# ---------- 3c. CODING AGENTS ----------------------------------------------
+function Find-Codex {
+  $cmd = Get-Command codex.exe -ErrorAction SilentlyContinue
+  if ($cmd) { return $cmd.Source }
+  foreach ($c in @(
+    (Join-Path $env:USERPROFILE '.codex\bin\codex.exe'),
+    (Join-Path $env:LOCALAPPDATA 'codex\bin\codex.exe')
+  )) { if ($c -and (Test-Path $c)) { return $c } }
+  return $null
+}
+function Install-Codex {
+  try {
+    Log 'CODEX: installing with the official OpenAI Windows installer...'
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command 'irm https://chatgpt.com/codex/install.ps1 | iex' 2>&1 | ForEach-Object { Log "  $_" }
+    Start-Sleep -Seconds 2
+    $found = Find-Codex
+    if ($found) { Log "  Codex installed: $found"; return $true }
+  } catch { Log "  official Codex installer failed: $($_.Exception.Message)" }
+  if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
+    try {
+      Log '  trying the official @openai/codex npm package...'
+      & npm.cmd install --global @openai/codex 2>&1 | ForEach-Object { Log "  $_" }
+      Start-Sleep -Seconds 2
+      $found = Find-Codex
+      if ($found) { Log "  Codex installed via npm: $found"; return $true }
+    } catch { Log "  Codex npm fallback failed: $($_.Exception.Message)" }
+  }
+  return $false
+}
+$resCodex = 'skip'
+if ($cfg.codex) {
+  if (Find-Codex) { $resCodex = 'already present'; Log 'CODEX: already installed' }
+  else { $resCodex = if (Install-Codex) { 'ok' } else { 'failed' }; Log "  Codex: $resCodex" }
+}
+
+function Find-AntigravityIDE {
+  foreach ($c in @(
+    (Join-Path $env:LOCALAPPDATA 'Programs\Antigravity IDE\Antigravity IDE.exe'),
+    (Join-Path $env:LOCALAPPDATA 'Programs\Antigravity IDE\Antigravity.exe'),
+    (Join-Path $env:ProgramFiles 'Antigravity IDE\Antigravity IDE.exe'),
+    (Join-Path ${env:ProgramFiles(x86)} 'Antigravity IDE\Antigravity IDE.exe')
+  )) { if ($c -and (Test-Path $c)) { return $c } }
+  $cmd = Get-Command 'Antigravity IDE.exe' -ErrorAction SilentlyContinue
+  if ($cmd) { return $cmd.Source }
+  return $null
+}
+function Install-AntigravityIDE {
+  $installer = Join-Path $env:RUNNER_TEMP 'antigravity-ide-x64.exe'
+  $url = 'https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/2.5.5-4923483625488384/windows-x64/Antigravity%20IDE.exe'
+  try {
+    Log 'ANTIGRAVITY IDE: downloading the official standalone Windows x64 installer...'
+    if (-not (Get-File $url $installer 300)) { Log '  official Antigravity IDE download failed'; return $false }
+    if ((Get-Item $installer).Length -lt 10MB) { Log '  Antigravity IDE installer is unexpectedly small'; return $false }
+    # The official standalone IDE installer supports silent installation. Do not launch the IDE;
+    # Google-account sign-in remains an interactive user action after RDP connects.
+    Start-Process -FilePath $installer -ArgumentList '/S' -Wait -WindowStyle Hidden
+    Start-Sleep -Seconds 4
+    $found = Find-AntigravityIDE
+    if ($found) { Log "  Antigravity IDE installed: $found"; return $true }
+    Log '  installer completed but the standalone Antigravity IDE executable was not found'
+  } catch { Log "  Antigravity IDE install failed: $($_.Exception.Message)" }
+  return $false
+}
+$resAntigravity = 'skip'
+if ($cfg.antigravity) {
+  if (Find-AntigravityIDE) { $resAntigravity = 'already present'; Log 'ANTIGRAVITY IDE: already installed' }
+  else { $resAntigravity = if (Install-AntigravityIDE) { 'ok' } else { 'failed' }; Log "  Antigravity: $resAntigravity" }
+}
 # ---------- 4. WALLPAPER ----------
 function Set-WallpaperLive([string]$imgPath) {
   try {
@@ -389,12 +458,14 @@ Update-Status @{ extras = [ordered]@{
     wallpaper_file = $wallName
     vscode         = $resVSCode
     notepadpp      = $resNotepadPP
+    codex          = $resCodex
+    antigravity    = $resAntigravity
     admin          = $adminOk
 } } | Out-Null
 Close-DefaultHive
 
 $adminTxt = $(if ($adminOk) { 'YES' } else { 'NO' })
-Log ("DONE — lightshot={0} translucent={1} wallpaper={2} admin={3}" -f $resLightshot, $resTrans, $resWall, $adminTxt)
+Log ("DONE — lightshot={0} translucent={1} wallpaper={2} codex={3} antigravity={4} admin={5}" -f $resLightshot, $resTrans, $resWall, $resCodex, $resAntigravity, $adminTxt)
 try { Probe-Rdp 'end step' | Out-Null } catch {}
 
 exit 0

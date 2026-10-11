@@ -61,7 +61,7 @@ name: RdpFree — 6-Hour RDP
         - 'yes'
         - 'no'
       ekstra:
-        description: 'Automatic extras: Lightshot + wallpaper + translucent taskbar'
+        description: 'Automatic extras: wallpaper + translucent taskbar + Codex CLI + standalone Antigravity IDE'
         required: false
         default: 'yes'
         type: choice
