@@ -8,7 +8,7 @@
 #    2) LIGHTSHOT   — automatic install (winget -> vendor installer), auto-run
 #    3) TRANSLUCENT — TranslucentTB (portable -> winget) + transparency effects
 #    4) WALLPAPER   — assets/wallpaper.* in repo (or WALLPAPER_URL)
-#    5) CODEX — automatic official OpenAI Codex CLI install + Public Desktop shortcut
+#    5) CHATGPT CODEX — automatic official ChatGPT desktop app install + Public Desktop shortcut
 #    6) VERIFICATION — RDP user ensured to be member of Administrators group
 #    7) summarize results -> out/rdp-status.json (read by web dashboard)
 #
@@ -29,7 +29,7 @@ if ($env:EXTRAS) {
 }
 if (-not $master) {
   Log "EXTRAS='$env:EXTRAS' — all extra steps skipped."
-  Update-Status @{ extras = @{ lightshot = 'skip'; translucent = 'skip'; wallpaper = 'skip'; wallpaper_file = ''; vscode = 'skip'; notepadpp = 'skip'; codex = 'skip'; codex_shortcut = 'skip'; admin = $true } } | Out-Null
+  Update-Status @{ extras = @{ lightshot = 'skip'; translucent = 'skip'; wallpaper = 'skip'; wallpaper_file = ''; vscode = 'skip'; notepadpp = 'skip'; chatgpt_codex = 'skip'; codex_shortcut = 'skip'; admin = $true } } | Out-Null
   exit 0
 }
 
@@ -295,71 +295,53 @@ if ($cfg.notepadpp) {
   }
 }
 
-# ---------- 3c. CODEX --------------------------------------------------------
-function Find-Codex {
-  foreach ($cmdName in @('codex.exe', 'codex.cmd')) {
-    $cmd = Get-Command $cmdName -ErrorAction SilentlyContinue
-    if ($cmd) { return $cmd.Source }
-  }
-  foreach ($c in @(
-    (Join-Path $env:USERPROFILE '.codex\bin\codex.exe'),
-    (Join-Path $env:USERPROFILE '.codex\bin\codex.cmd'),
-    (Join-Path $env:LOCALAPPDATA 'codex\bin\codex.exe'),
-    (Join-Path $env:LOCALAPPDATA 'codex\bin\codex.cmd')
-  )) { if ($c -and (Test-Path $c)) { return $c } }
-  return $null
-}
-function Install-Codex {
+# ---------- 3c. CHATGPT CODEX APP -------------------------------------------
+# The Windows Codex experience is provided inside the official ChatGPT desktop app.
+# Install the Microsoft Store package; do not install the terminal CLI here.
+$ChatGPTStoreId = '9PLM9XGG6VKS'
+function Find-ChatGPTApp {
   try {
-    Log 'CODEX: installing with the official OpenAI Windows installer...'
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command 'irm https://chatgpt.com/codex/install.ps1 | iex' 2>&1 | ForEach-Object { Log "  $_" }
-    Start-Sleep -Seconds 2
-    $found = Find-Codex
-    if ($found) { Log "  Codex installed: $found"; return $found }
-  } catch { Log "  official Codex installer failed: $($_.Exception.Message)" }
-  if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
-    try {
-      Log '  trying the official @openai/codex npm package...'
-      & npm.cmd install --global @openai/codex 2>&1 | ForEach-Object { Log "  $_" }
-      Start-Sleep -Seconds 2
-      $found = Find-Codex
-      if ($found) { Log "  Codex installed via npm: $found"; return $found }
-    } catch { Log "  Codex npm fallback failed: $($_.Exception.Message)" }
-  }
-  return $null
+    return @(Get-StartApps | Where-Object { $_.Name -match '(?i)^ChatGPT($|\s)' } | Select-Object -First 1)[0]
+  } catch { return $null }
 }
-function New-CodexDesktopShortcut([string]$CodexPath) {
+function Install-ChatGPTApp {
+  $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+  if (-not $winget) { Log '  ChatGPT app install failed: winget is not available'; return $null }
+  try {
+    Log "CHATGPT CODEX: installing the official ChatGPT Windows app from Microsoft Store ($ChatGPTStoreId)..."
+    $output = & $winget.Source install --id $ChatGPTStoreId --source msstore --accept-source-agreements --accept-package-agreements --silent 2>&1 | Out-String
+    Log "  winget: $(Log-Tail $output 3)"
+    Start-Sleep -Seconds 4
+    return (Find-ChatGPTApp)
+  } catch { Log "  ChatGPT app installation failed: $($_.Exception.Message)"; return $null }
+}
+function New-ChatGPTCodexDesktopShortcut($App) {
   try {
     $desktop = Join-Path $env:PUBLIC 'Desktop'
     New-Item -ItemType Directory -Path $desktop -Force | Out-Null
-    $shortcutPath = Join-Path $desktop 'OpenAI Codex.lnk'
+    $shortcutPath = Join-Path $desktop 'ChatGPT Codex.lnk'
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($shortcutPath)
-    if ($CodexPath -match '(?i)\.(cmd|bat)$') {
-      $shortcut.TargetPath = $env:ComSpec
-      $shortcut.Arguments = '/k ""' + $CodexPath + '""'
-    } else {
-      $shortcut.TargetPath = $CodexPath
-      $shortcut.Arguments = ''
-    }
-    $shortcut.WorkingDirectory = if ($env:GITHUB_WORKSPACE) { $env:GITHUB_WORKSPACE } else { $env:USERPROFILE }
-    $shortcut.Description = 'OpenAI Codex CLI'
+    $shortcut.TargetPath = Join-Path $env:WINDIR 'explorer.exe'
+    $shortcut.Arguments = 'shell:AppsFolder\' + $App.AppID
+    $shortcut.WorkingDirectory = $env:PUBLIC
+    $shortcut.Description = 'ChatGPT desktop app — select Codex to start coding'
     $shortcut.Save()
-    Log "  Desktop shortcut created: $shortcutPath"
+    Log "  ChatGPT Codex Desktop shortcut created: $shortcutPath"
     return $true
   } catch {
-    Log "  Codex Desktop shortcut failed: $($_.Exception.Message)"
+    Log "  ChatGPT Codex Desktop shortcut failed: $($_.Exception.Message)"
     return $false
   }
 }
-$resCodex = 'failed'; $resCodexShortcut = 'failed'; $codexPath = Find-Codex
-if ($codexPath) {
-  $resCodex = 'already present'; Log "CODEX: already installed at $codexPath"
+$resCodex = 'failed'; $resCodexShortcut = 'failed'; $chatGPTApp = Find-ChatGPTApp
+if ($chatGPTApp) {
+  $resCodex = 'already present'; Log "CHATGPT CODEX: ChatGPT app already installed ($($chatGPTApp.AppID))"
 } else {
-  $codexPath = Install-Codex
-  if ($codexPath) { $resCodex = 'ok' } else { Log 'CODEX: installation failed (non-critical; session continues)' }
+  $chatGPTApp = Install-ChatGPTApp
+  if ($chatGPTApp) { $resCodex = 'ok' } else { Log 'CHATGPT CODEX: installation failed (non-critical; session continues)' }
 }
-if ($codexPath) { $resCodexShortcut = if (New-CodexDesktopShortcut $codexPath) { 'ok' } else { 'failed' } }
+if ($chatGPTApp) { $resCodexShortcut = if (New-ChatGPTCodexDesktopShortcut $chatGPTApp) { 'ok' } else { 'failed' } }
 # ---------- 4. WALLPAPER ----------
 function Set-WallpaperLive([string]$imgPath) {
   try {
@@ -455,14 +437,14 @@ Update-Status @{ extras = [ordered]@{
     wallpaper_file = $wallName
     vscode         = $resVSCode
     notepadpp      = $resNotepadPP
-    codex          = $resCodex
+    chatgpt_codex  = $resCodex
     codex_shortcut = $resCodexShortcut
     admin          = $adminOk
 } } | Out-Null
 Close-DefaultHive
 
 $adminTxt = $(if ($adminOk) { 'YES' } else { 'NO' })
-Log ("DONE — lightshot={0} translucent={1} wallpaper={2} codex={3} shortcut={4} admin={5}" -f $resLightshot, $resTrans, $resWall, $resCodex, $resCodexShortcut, $adminTxt)
+Log ("DONE — lightshot={0} translucent={1} wallpaper={2} chatgpt_codex={3} shortcut={4} admin={5}" -f $resLightshot, $resTrans, $resWall, $resCodex, $resCodexShortcut, $adminTxt)
 try { Probe-Rdp 'end step' | Out-Null } catch {}
 
 exit 0

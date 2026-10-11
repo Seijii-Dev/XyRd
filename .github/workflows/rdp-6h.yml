@@ -61,7 +61,7 @@ name: RdpFree — 6-Hour RDP
         - 'yes'
         - 'no'
       ekstra:
-        description: 'Automatic extras: wallpaper + translucent taskbar + Codex CLI with Desktop shortcut'
+        description: 'Automatic extras: wallpaper + translucent taskbar + ChatGPT Codex app with Desktop shortcut'
         required: false
         default: 'yes'
         type: choice
