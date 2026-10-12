@@ -1,19 +1,19 @@
 {
-  "active": false,
-  "hostname": "rdpfree-8",
+  "active": true,
+  "hostname": "seidesk-9",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
   "rdp_port": 3389,
-  "rdp_user": "xyadmin",
+  "rdp_user": "SeiAdmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-11T20:21:43Z",
-  "expires_at": "2026-10-12T02:16:43Z",
+  "started_at": "2026-10-12T04:35:41Z",
+  "expires_at": "2026-10-12T10:30:41Z",
   "duration_menit": 355,
-  "run_id": "38171867441",
-  "run_number": "8",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38171867441",
+  "run_id": "38204407745",
+  "run_number": "9",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38204407745",
   "mode": "clean+win11",
   "xydesk": {
     "host": "ok",
@@ -44,22 +44,19 @@
     "admin": true
   },
   "akses": {
+    "mode": "tailscale",
     "tailscale": {
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
+      "magicdns": "seidesk-9.tail4b745d.ts.net.",
       "status": "ok",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    },
-    "mode": "tailscale"
+      "ip": "100.99.180.115",
+      "hostname": "SeiDesk-9"
+    }
   },
   "media": {
-    "wallpaper": "xyverse_configured_for_user_logon",
-    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "audio_output": "rdp_playback_enabled",
-    "microphone": "rdp_capture_enabled"
-  },
-  "heartbeat_at": "2026-10-12T02:11:19.2703699Z",
-  "stopped_at": "2026-10-12T02:14:44Z"
+    "microphone": "rdp_capture_enabled",
+    "wallpaper": "xyverse_configured_for_user_logon",
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
+  }
 }
