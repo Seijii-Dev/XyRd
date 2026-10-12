@@ -1,19 +1,19 @@
 {
-  "active": false,
-  "hostname": "seidesk-9",
+  "active": true,
+  "hostname": "seidesk-10",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
   "rdp_port": 3389,
-  "rdp_user": "SeiAdmin",
+  "rdp_user": "seijiadmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-12T04:35:41Z",
-  "expires_at": "2026-10-12T10:30:41Z",
+  "started_at": "2026-10-12T11:13:51Z",
+  "expires_at": "2026-10-12T17:08:51Z",
   "duration_menit": 355,
-  "run_id": "38204407745",
-  "run_number": "9",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38204407745",
+  "run_id": "38241286166",
+  "run_number": "10",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38241286166",
   "mode": "clean+win11",
   "xydesk": {
     "host": "ok",
@@ -46,20 +46,17 @@
   "akses": {
     "mode": "tailscale",
     "tailscale": {
+      "magicdns": "seidesk-10.tail4b745d.ts.net.",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
       "status": "ok",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
+      "hostname": "seidesk-10",
+      "ip": "100.71.74.40"
     }
   },
   "media": {
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "audio_output": "rdp_playback_enabled",
     "microphone": "rdp_capture_enabled",
-    "wallpaper": "xyverse_configured_for_user_logon",
-    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
-  },
-  "heartbeat_at": "2026-10-12T10:25:06.1878009Z",
-  "stopped_at": "2026-10-12T10:28:42Z"
+    "wallpaper": "xyverse_configured_for_user_logon"
+  }
 }
