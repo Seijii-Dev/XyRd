@@ -58,5 +58,6 @@
     "audio_output": "rdp_playback_enabled",
     "microphone": "rdp_capture_enabled",
     "wallpaper": "xyverse_configured_for_user_logon"
-  }
+  },
+  "heartbeat_at": "2026-10-12T11:20:58.5978632Z"
 }
