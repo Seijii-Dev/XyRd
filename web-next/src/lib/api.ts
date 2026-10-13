@@ -20,7 +20,7 @@ export async function context(req:NextRequest,browserOnly=false):Promise<Context
   const d=await decode({token:row.payload,secret:process.env.NEXTAUTH_SECRET!});
   if(!d||typeof d.repo!=="string")throw new ApiError(401,"Invalid device session");
   if(row.subject!=="admin"){
-   if(d.binding!=="github_app")throw new ApiError(401,"Old device token is no longer used. Connect the GitHub App then create a new XyDesk token.");
+   if(d.binding!=="github_app")throw new ApiError(401,"Old device token is no longer used. Connect the GitHub App then create a new Seiji-RMD token.");
    const grant=await (await import("./github-app")).installationToken(row.subject,d.repo);
    return {...grant,repo:d.repo,subject:row.subject,kind:"device",deviceId:row.id};
   }
