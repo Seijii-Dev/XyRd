@@ -1,20 +1,25 @@
 {
-  "active": false,
-  "hostname": "seidesk-12",
+  "active": true,
+  "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
   "rdp_port": 3389,
-  "rdp_user": "seijiadmin",
+  "rdp_user": "SeijiAdmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-13T05:20:15Z",
-  "expires_at": "2026-10-13T11:15:15Z",
+  "started_at": "2026-10-13T13:34:59Z",
+  "expires_at": "2026-10-13T19:29:59Z",
   "duration_menit": 355,
-  "run_id": "38350845211",
-  "run_number": "12",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38350845211",
+  "run_id": "38406097067",
+  "run_number": "13",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38406097067",
   "mode": "clean+win11",
+  "debloat": {
+    "mode": "registration-failed",
+    "user": "SeijiAdmin",
+    "error": "Cannot process argument transformation on parameter 'LogonType'. Cannot convert value \"InteractiveToken\" to type \"Microsoft.PowerShell.Cmdletization.GeneratedTypes.ScheduledTask.LogonTypeEnum\". Error: \"Unable to match the identifier name InteractiveToken to a valid enumerator name. Specify one of the following enumerator names and try again:\r\nNone, Password, S4U, Interactive, Group, ServiceAccount, InteractiveOrPassword\""
+  },
   "xydesk": {
     "host": "ok",
     "denyts": "ok",
@@ -45,21 +50,18 @@
   },
   "akses": {
     "tailscale": {
+      "ip": "100.94.174.10",
+      "hostname": "SeijiDesktop",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
       "status": "ok",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
+      "magicdns": "seijidesktop.tail4b745d.ts.net."
     },
     "mode": "tailscale"
   },
   "media": {
-    "audio_output": "rdp_playback_enabled",
-    "wallpaper": "xyverse_configured_for_user_logon",
     "microphone": "rdp_capture_enabled",
-    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
-  },
-  "heartbeat_at": "2026-10-13T11:09:51.1852185Z",
-  "stopped_at": "2026-10-13T11:13:15Z"
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
+    "wallpaper": "xyverse_configured_for_user_logon",
+    "audio_output": "rdp_playback_enabled"
+  }
 }
