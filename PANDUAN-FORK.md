@@ -7,6 +7,7 @@ Credit: KallAncrit. Follow the active [README](README.md).
 3. Use private Tailscale access. Sign your phone/PC into the same tailnet and allow TCP 3389 in the tailnet ACL.
 4. Configure the session in Settings and start it from Home. Never print or save the password as a public artifact.
 5. Use a dedicated runner if you choose self-hosted mode. Do not run workflows from untrusted pull requests on a machine that changes Windows policies or applications.
+6. If Debloat is enabled, the first RDP login opens a visible one-time prompt that removes only Edge and Firefox.
 
 Older repositories should synchronize `.github/workflows/rdp-6h.yml`, `scripts/`, and `assets/` together. The app has read-only source access and cannot update those files silently. The ChatGPT Codex desktop app is installed automatically and a Public Desktop shortcut is created by the extras step; account sign-in remains interactive after connecting.
 

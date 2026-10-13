@@ -1,77 +1,113 @@
 # ============================================================================
-# setup-debloat.ps1 — remove only Microsoft Edge and Mozilla Firefox
+# setup-debloat.ps1 — schedule a visible, one-time first-login debloat prompt
 #
-# This script is intentionally narrow. It does not remove OneDrive, Xbox,
-# arbitrary AppX packages, Windows components, or other installed software.
+# When the configured RDP user logs in for the first time, Windows opens a
+# visible PowerShell window and removes only Microsoft Edge and Mozilla Firefox.
+# The scheduled task and temporary script delete themselves after completion.
 # ============================================================================
 $XyTag = 'XyRDP:debloat'
 . "$PSScriptRoot/lib-common.ps1"
 
-function Invoke-WingetUninstall([string]$Id, [string]$Label) {
-  if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Log "  winget is not available; will try the uninstall registry fallback for $Label"
-    return $false
-  }
-  try {
-    $output = & winget uninstall --id $Id --exact --silent --accept-source-agreements --disable-interactivity 2>&1 | Out-String
-    Log "  $Label (winget): $(Log-Tail $output 3)"
-    return ($LASTEXITCODE -eq 0)
-  } catch {
-    Log "  $Label (winget) failed: $($_.Exception.Message)"
-    return $false
-  }
-}
+$cfg = Get-Cfg
+$rdpUser = if ($env:RDP_USER) { $env:RDP_USER.Trim() } elseif ($cfg.rdp_user) { [string]$cfg.rdp_user } else { 'xyadmin' }
+$taskName = 'XyRDP-Debloat-FirstLogin'
+$taskDir = Join-Path $env:ProgramData 'XyRDP'
+$firstLoginScript = Join-Path $taskDir 'debloat-first-login.ps1'
 
+$firstLoginBody = @'
+$ErrorActionPreference = 'Continue'
+$ProgressPreference = 'SilentlyContinue'
+$taskName = 'XyRDP-Debloat-FirstLogin'
+$logPath = Join-Path $env:ProgramData 'XyRDP\debloat-first-login.log'
+New-Item -ItemType Directory -Path (Split-Path $logPath) -Force | Out-Null
+function Say([string]$Message) {
+  Write-Host $Message
+  Add-Content -Path $logPath -Value ("[{0}] {1}" -f (Get-Date -Format s), $Message)
+}
 function Get-UninstallEntries {
-  $paths = @(
+  @(
     'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
     'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
     'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
-  )
-  foreach ($path in $paths) {
-    Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+  ) | ForEach-Object {
+    Get-ItemProperty -Path $_ -ErrorAction SilentlyContinue |
       Where-Object { $_.DisplayName -and $_.UninstallString }
   }
 }
-
-function Invoke-RegistryUninstall([string]$NamePattern, [string]$Label) {
-  $entries = @(Get-UninstallEntries | Where-Object { $_.DisplayName -match $NamePattern })
-  if (-not $entries) {
-    Log "  $Label: no registry uninstall entry found"
-    return $false
+function Remove-Firefox {
+  Say ''
+  Say 'Removing Mozilla Firefox...'
+  $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+  if ($winget) {
+    & $winget.Source uninstall --id Mozilla.Firefox --exact --silent --accept-source-agreements --disable-interactivity 2>&1 | ForEach-Object { Say "  $_" }
+    if ($LASTEXITCODE -eq 0) { Say 'Mozilla Firefox removed with winget.'; return }
   }
-  $removed = $false
+  $entries = @(Get-UninstallEntries | Where-Object { $_.DisplayName -match '(?i)^Mozilla Firefox' })
   foreach ($entry in $entries) {
     try {
       $command = [string]$entry.UninstallString
-      if ($command -match '(?i)msiexec(?:\.exe)?') {
-        $command = $command -replace '(?i)\s/I\s', ' /X '
-        if ($command -notmatch '(?i)\s/q') { $command += ' /qn' }
-        if ($command -notmatch '(?i)norestart') { $command += ' /norestart' }
-        Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $command -Wait -WindowStyle Hidden
-      } elseif ($command -match '^\s*"([^"]+)"\s*(.*)$') {
+      if ($command -match '^\s*"([^"]+)"\s*(.*)$') {
         $exe = $Matches[1]; $args = $Matches[2]
-        if ($Label -eq 'Mozilla Firefox' -and $args -notmatch '(?i)(/S|/silent)') { $args += ' /S' }
+        if ($args -notmatch '(?i)(/S|/silent)') { $args += ' /S' }
         Start-Process -FilePath $exe -ArgumentList $args -Wait -WindowStyle Hidden
       } else {
-        Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', $command -Wait -WindowStyle Hidden
+        Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', ($command + ' /S') -Wait -WindowStyle Hidden
       }
-      Log "  $Label (registry): uninstall command completed for $($entry.DisplayName)"
-      $removed = $true
-    } catch {
-      Log "  $Label (registry) failed: $($_.Exception.Message)"
-    }
+      Say "Firefox uninstall command completed: $($entry.DisplayName)"
+    } catch { Say "Firefox uninstall failed: $($_.Exception.Message)" }
   }
-  return $removed
+  if (-not $entries) { Say 'Mozilla Firefox was not found.' }
 }
+function Remove-Edge {
+  Say 'Microsoft Edge removal'
+  Say 'Opening the Edge Installer folder and running:'
+  Say 'cd "C:\Program Files (x86)\Microsoft\Edge\Application\*\Installer"'
+  Say '.\setup.exe --uninstall --system-level --verbose-logging --force-uninstall'
+  $installer = @(Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft\Edge\Application\*\Installer\setup.exe' -File -ErrorAction SilentlyContinue)
+  if (-not $installer) {
+    $installer = @(Get-ChildItem -Path 'C:\Program Files\Microsoft\Edge\Application\*\Installer\setup.exe' -File -ErrorAction SilentlyContinue)
+  }
+  if (-not $installer) { Say 'Microsoft Edge setup.exe was not found.'; return }
+  foreach ($setup in $installer | Sort-Object FullName -Descending | Select-Object -First 1) {
+    try {
+      Set-Location -LiteralPath $setup.DirectoryName
+      Say "Running $($setup.FullName)"
+      & $setup.FullName --uninstall --system-level --verbose-logging --force-uninstall 2>&1 | ForEach-Object { Say "  $_" }
+      Say "Edge uninstall exit code: $LASTEXITCODE"
+    } catch { Say "Edge uninstall failed: $($_.Exception.Message)" }
+  }
+}
+try { $host.UI.RawUI.WindowTitle = 'XyRDP first-login debloat — Edge and Firefox' } catch {}
+Clear-Host
+Say 'XyRDP first-login debloat prompt'
+Say 'This one-time prompt removes Microsoft Edge and Mozilla Firefox only.'
+Say ''
+Remove-Edge
+Remove-Firefox
+Say ''
+Say 'Debloat complete. Only Edge and Firefox were targeted.'
+Say 'This window will close automatically in 8 seconds.'
+Start-Sleep -Seconds 8
+try { Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue } catch {}
+try { Remove-Item -LiteralPath $PSCommandPath -Force -ErrorAction SilentlyContinue } catch {}
+'@
 
-Log 'Debloat scope: Microsoft Edge and Mozilla Firefox only.'
-$edgeRemoved = Invoke-WingetUninstall 'Microsoft.Edge' 'Microsoft Edge'
-if (-not $edgeRemoved) { $edgeRemoved = Invoke-RegistryUninstall '^Microsoft Edge$' 'Microsoft Edge' }
+try {
+  New-Item -ItemType Directory -Path $taskDir -Force | Out-Null
+  Set-Content -LiteralPath $firstLoginScript -Value $firstLoginBody -Encoding UTF8 -Force
 
-$firefoxRemoved = Invoke-WingetUninstall 'Mozilla.Firefox' 'Mozilla Firefox'
-if (-not $firefoxRemoved) { $firefoxRemoved = Invoke-RegistryUninstall '^Mozilla Firefox' 'Mozilla Firefox' }
+  $userId = ".\$rdpUser"
+  $actionArgs = '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Normal -File "' + $firstLoginScript + '"'
+  $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $actionArgs
+  $trigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
+  $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType InteractiveToken -RunLevel Highest
+  Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Description 'One-time visible Edge and Firefox removal on the first RDP login' -Force | Out-Null
 
-Log "Debloat complete: Edge removed=$edgeRemoved | Firefox removed=$firefoxRemoved"
-Log 'No OneDrive, Xbox, AppX, or other Windows components were targeted.'
+  Log "Debloat first-login task registered for $userId. It will open a visible PowerShell prompt at the first RDP login."
+  Update-Status @{ debloat = @{ mode = 'first-login-visible-prompt'; user = $rdpUser; edge = 'pending'; firefox = 'pending'; task = $taskName } } | Out-Null
+} catch {
+  Log "ERROR: could not register the first-login debloat task: $($_.Exception.Message)"
+  Update-Status @{ debloat = @{ mode = 'registration-failed'; user = $rdpUser; error = $_.Exception.Message } } | Out-Null
+  exit 1
+}
 exit 0

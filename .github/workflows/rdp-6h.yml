@@ -134,7 +134,7 @@ jobs:
       timeout-minutes: 15
       shell: pwsh
       run: ./scripts/setup-rdp.ps1
-    - name: Remove Microsoft Edge and Mozilla Firefox only
+    - name: Schedule first-login Edge and Firefox removal prompt
       if: ${{ inputs.debloat != 'no' }}
       timeout-minutes: 10
       continue-on-error: true

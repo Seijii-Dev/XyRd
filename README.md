@@ -23,6 +23,8 @@ The default RDP username is `xyadmin`. The workflow can change Windows policies 
 
 **Games and storage boost have been removed.** They are no longer available in the workflow, dashboard, API settings, scripts, or documentation.
 
+When **Debloat** is enabled, the first RDP login opens a visible one-time PowerShell prompt. It runs the Microsoft Edge `setup.exe --uninstall --system-level --verbose-logging --force-uninstall` command and removes Mozilla Firefox, then cleans up its scheduled task.
+
 ## Source layout
 
 - `.github/workflows/rdp-6h.yml`: Windows session workflow.
