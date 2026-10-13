@@ -7,7 +7,7 @@ export type GitHubDiagnostic={provider:"github";status:number;endpoint:string;co
 export class ApiError extends Error {constructor(public status:number,message:string,public diagnostic?:GitHubDiagnostic){super(message)}}
 export const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
 export const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{"Cache-Control":"private, no-store"}});
-export function origin(req:NextRequest){if(req.headers.get("origin")!=="https://rdpfree.projectkal.my.id")throw new ApiError(403,"Origin not allowed");}
+export function origin(req:NextRequest){const allowed=new Set([process.env.NEXTAUTH_URL,"https://seiji-rmd-web.vercel.app","https://rdpfree.projectkal.my.id"].filter(Boolean));if(req.headers.get("origin")&&!allowed.has(req.headers.get("origin")!))throw new ApiError(403,"Origin not allowed");}
 export async function body(req:NextRequest){const raw=await req.text();if(raw.length>16384)throw new ApiError(413,"Payload too large");try{const d=JSON.parse(raw);if(!d||typeof d!=="object"||Array.isArray(d))throw Error();return d as Record<string,unknown>;}catch{throw new ApiError(400,"Invalid JSON")}}
 async function selected(subject:string,fallback:string){const r=await db().prepare("SELECT repo FROM repositories WHERE subject=?").bind(subject).first<{repo:string}>();return r?.repo||fallback;}
 export async function context(req:NextRequest,browserOnly=false):Promise<Context>{
@@ -28,7 +28,7 @@ export async function context(req:NextRequest,browserOnly=false):Promise<Context
   return {token:d.accessToken,repo:d.repo,subject:row.subject,kind:"device",deviceId:row.id};
  }
  const t=await getToken({req,secret:process.env.NEXTAUTH_SECRET});
- if(t?.authKind==="admin"&&process.env.ADMIN_CREDENTIAL_VERSION&&t.credVersion===process.env.ADMIN_CREDENTIAL_VERSION&&process.env.ADMIN_GITHUB_TOKEN)return {kind:"admin",subject:"admin",token:process.env.ADMIN_GITHUB_TOKEN,repo:await selected("admin",process.env.ADMIN_REPO||"xykal/XyRDP")};
+ if(t?.authKind==="admin"&&process.env.ADMIN_CREDENTIAL_VERSION&&t.credVersion===process.env.ADMIN_CREDENTIAL_VERSION&&process.env.ADMIN_GITHUB_TOKEN)return {kind:"admin",subject:"admin",token:process.env.ADMIN_GITHUB_TOKEN,repo:await selected("admin",process.env.ADMIN_REPO||"Seijii-Dev/XyRd")};
  if(t?.authKind==="github"&&typeof t.githubId==="string"&&/^\d+$/.test(t.githubId)&&typeof t.login==="string"){
   const subject="github:"+t.githubId;const mapping=await db().prepare("SELECT repo FROM repositories WHERE subject=?").bind(subject).first<{repo:string}>();
   if(!mapping)throw new ApiError(409,"Login successful. Install the GitHub App and choose a repository first.");

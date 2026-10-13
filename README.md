@@ -1,6 +1,6 @@
 # RdpFree
 
-Dashboard: **https://rdpfree.projectkal.my.id** · Credit: **KallAncrit**
+Dashboard: **https://seiji-rmd-web.vercel.app** · Credit: **Seijixinghe888**
 
 Windows RDP through **private Tailscale**, with a Next.js/Cloudflare dashboard and native XyDesk Remote API integration. The active workflow uses the GitHub `windows-2025` runner target and does not use public relay tunnels.
 

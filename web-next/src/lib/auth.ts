@@ -14,7 +14,7 @@ export const authOptions: NextAuthOptions = {
   const bucket=createHash("sha256").update(ip).digest("hex");
   if(!await rateLimit("admin:"+bucket,5,900))return null;
   const r=await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify",{method:"POST",body:new URLSearchParams({secret:process.env.TURNSTILE_SECRET_KEY,response:c.turnstile,remoteip:ip}),signal:AbortSignal.timeout(10000)});
-  const check=await r.json();if(!check.success||check.hostname!=="rdpfree.projectkal.my.id"||check.action!=="admin_login")return null;
+  const check=await r.json();if(!check.success||check.hostname!==(process.env.TURNSTILE_HOSTNAME||"seiji-rmd-web.vercel.app")||check.action!=="admin_login")return null;
   const [salt,expected]=process.env.ADMIN_PASSWORD_HASH.split(":");
   if(!salt||!expected)return null;
   const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(c.password),"PBKDF2",false,["deriveBits"]);

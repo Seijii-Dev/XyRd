@@ -32,8 +32,8 @@ const SECURITY_HEADERS = {
 const ENV = {
   // --- mode admin (perilaku lama) ---
   token: process.env.GITHUB_TOKEN || '',
-  owner: process.env.GH_OWNER || 'xykal',
-  repo: process.env.GH_REPO || 'XyRDP',
+  owner: process.env.GH_OWNER || 'Seijii-Dev',
+  repo: process.env.GH_REPO || 'XyRd',
   workflow: process.env.GH_WORKFLOW || 'rdp-6h.yml',
   branch: process.env.GH_BRANCH || 'main',
   rdp_user: process.env.RDP_USER || 'SeijiAdmin',
@@ -42,11 +42,11 @@ const ENV = {
   oauth_id: process.env.GITHUB_OAUTH_CLIENT_ID || '',
   oauth_secret: process.env.GITHUB_OAUTH_CLIENT_SECRET || '',
   session_secret: process.env.SESSION_SECRET || '',
-  template: process.env.TEMPLATE_REPO || `${process.env.GH_OWNER || 'xykal'}/${process.env.GH_REPO || 'XyRDP'}`,
-  owner_login: (process.env.OWNER_LOGIN || process.env.GH_OWNER || 'xykal').toLowerCase(),
+  template: process.env.TEMPLATE_REPO || `${process.env.GH_OWNER || 'Seijii-Dev'}/${process.env.GH_REPO || 'XyRd'}`,
+  owner_login: (process.env.OWNER_LOGIN || process.env.GH_OWNER || 'Seijii-Dev').toLowerCase(),
   turnstile_site_key: process.env.TURNSTILE_SITE_KEY || '',
   turnstile_secret: process.env.TURNSTILE_SECRET_KEY || '',
-  turnstile_hostname: (process.env.TURNSTILE_HOSTNAME || 'xyrdp-dash.vercel.app').toLowerCase(),
+  turnstile_hostname: (process.env.TURNSTILE_HOSTNAME || 'seiji-rmd-web.vercel.app').toLowerCase(),
 };
 
 const STATUS_BRANCH = 'status';        // branch tempat workflow menulis rdp-status.json

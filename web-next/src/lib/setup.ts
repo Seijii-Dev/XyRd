@@ -1,7 +1,7 @@
 import {Context,ApiError,gh,github,type GitHubDiagnostic} from "./api";
 import {db} from "./db";
 
-export const TEMPLATE="xykal/XyRDP";
+export const TEMPLATE=process.env.TEMPLATE_REPO||"Seijii-Dev/XyRd";
 export async function inspect(c:Context){
  const mapping=await db().prepare("SELECT state FROM repositories WHERE subject=? AND repo=?").bind(c.subject,c.repo).first<{state:string}>();
  const result={repo:c.repo,template:TEMPLATE,exists:false,workflow_exists:false,workflow_state:"",actions_enabled:false,can_write:false,missing:[] as string[],ready:false,importing:mapping?.state==="initializing",password_stored:false,access_mode:c.installationId?"installation":"admin",blocked:false,issues:[] as (GitHubDiagnostic&{stage:string})[]};
