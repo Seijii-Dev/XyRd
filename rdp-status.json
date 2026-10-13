@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "hostname": "seidesk-11",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -46,11 +46,12 @@
   "akses": {
     "mode": "tailscale",
     "tailscale": {
-      "hostname": "seidesk-11",
-      "ip": "100.111.233.46",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
       "status": "ok",
-      "magicdns": "seidesk-11.tail4b745d.ts.net."
+      "ip": "",
+      "magicdns": "",
+      "hostname": "",
+      "funnel_addr": ""
     }
   },
   "media": {
@@ -59,5 +60,6 @@
     "wallpaper": "xyverse_configured_for_user_logon",
     "audio_output": "rdp_playback_enabled"
   },
-  "heartbeat_at": "2026-10-13T00:44:42.6509016Z"
+  "heartbeat_at": "2026-10-13T00:57:03.0978243Z",
+  "stopped_at": "2026-10-13T00:57:51Z"
 }
