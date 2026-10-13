@@ -32,6 +32,6 @@ export async function POST(req:NextRequest){return guarded(async()=>{
     await db().prepare("DELETE FROM repositories WHERE subject=? AND repo=?").bind(who.subject,c.repo).run();
    }catch{return reply({ok:true,deleted:true,cleanup_pending:true,message:"Repository has been deleted on GitHub. Local data cleanup is not finished; contact an administrator."})}
   }
-  return reply({ok:true,deleted:true,message:"Repository deleted. This account's XyDesk token and repository data in the dashboard have been cleared. Login remains active."});
+  return reply({ok:true,deleted:true,message:"Repository deleted. This account's Seiji-RMD token and repository data in the dashboard have been cleared. Login remains active."});
  }finally{try{await db().prepare("DELETE FROM locks WHERE key=? AND expires=?").bind("run:"+c.repo,expires).run()}catch{/* lock expires automatically; do not mask a completed deletion */}}
 })}
