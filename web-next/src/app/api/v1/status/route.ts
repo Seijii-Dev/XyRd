@@ -8,5 +8,5 @@ export async function GET(req:NextRequest){return guarded(async()=>{const c=awai
  const current=!!(run&&active(run)&&session&&String(session.run_id)===String(run.id)&&session.active&&Date.parse(session.expires_at||"")>Date.now());
  const ts=current?session?.akses?.tailscale:null;
  const host=ts?.status==="ok"?ts.ip:null;
- const connection=host?{host,port:3389,username:session?.rdp_user||"xyadmin",password_required:true,transport:"tailscale"}:null;
+ const connection=host?{host,port:3389,username:session?.rdp_user||"SeijiAdmin",password_required:true,transport:"tailscale"}:null;
  return reply({repo:c.repo,username:(await loadSettings(c.repo)).rdp_user,run,active:!!run&&active(run),session:current?{hostname:session?.hostname,started_at:session?.started_at,expires_at:session?.expires_at,username:session?.rdp_user}:null,connection,media:current?session?.media||null:null,server_time:new Date().toISOString(),phase:current?(connection?"ready":"preparing"):(run&&active(run)?"preparing":"stopped")});})}

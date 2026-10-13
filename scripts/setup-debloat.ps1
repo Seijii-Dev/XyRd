@@ -9,7 +9,7 @@ $XyTag = 'XyRDP:debloat'
 . "$PSScriptRoot/lib-common.ps1"
 
 $cfg = Get-Cfg
-$rdpUser = if ($env:RDP_USER) { $env:RDP_USER.Trim() } elseif ($cfg.rdp_user) { [string]$cfg.rdp_user } else { 'xyadmin' }
+$rdpUser = if ($env:RDP_USER) { $env:RDP_USER.Trim() } elseif ($cfg.rdp_user) { [string]$cfg.rdp_user } else { 'SeijiAdmin' }
 $taskName = 'XyRDP-Debloat-FirstLogin'
 $taskDir = Join-Path $env:ProgramData 'XyRDP'
 $firstLoginScript = Join-Path $taskDir 'debloat-first-login.ps1'

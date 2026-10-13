@@ -11,7 +11,7 @@ Windows RDP through **private Tailscale**, with a Next.js/Cloudflare dashboard a
 3. Set `RDP_PASSWORD` and `TAILSCALE_AUTH_KEY` through Setup. Keep your phone/PC on the same Tailscale network.
 4. Configure the session in Settings and start it from Home.
 
-The default RDP username is `xyadmin`. The workflow can change Windows policies and the administrator account, so use a dedicated or disposable machine. The maximum job duration is 360 minutes including setup. Passwords are not printed to logs or stored as workflow artifacts.
+The fixed computer name is `SeijiDesktop`. The default RDP username is `SeijiAdmin` and remains changeable. The workflow can change Windows policies and the administrator account, so use a dedicated or disposable machine. The maximum job duration is 360 minutes including setup. Passwords are not printed to logs or stored as workflow artifacts.
 
 ## Included features
 

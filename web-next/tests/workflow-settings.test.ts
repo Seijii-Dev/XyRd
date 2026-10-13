@@ -20,6 +20,6 @@ test("legacy access settings migrate to Tailscale",()=>{
   const m=migrateSettings({akses:"all",tunnel_provider:"ngrok",hostname:"old-host"});
   assert.equal(m.akses,"tailscale");
   assert.equal(m.runner,"github");
-  assert.equal(m.hostname,"old-host");
+  assert.equal(m.rdp_user,"SeijiAdmin");
   assert.ok(!("tunnel_provider" in m));
 });

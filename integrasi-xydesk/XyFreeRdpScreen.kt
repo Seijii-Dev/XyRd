@@ -284,12 +284,12 @@ fun XyFreeRdpScreen(
                         addJavascriptInterface(object {
                             @JavascriptInterface
                             fun onRdpCreated(json: String) {
-                                // json: {"ip":"100.x","user":"xyadmin","pass":"..."}
+                                // json: {"ip":"100.x","user":"SeijiAdmin","pass":"..."}
                                 scope.launch {
                                     try {
                                         // simple parse
                                         val ip = Regex("\"ip\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: ""
-                                        val user = Regex("\"user\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: "xyadmin"
+                                        val user = Regex("\"user\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: "SeijiAdmin"
                                         val pass = Regex("\"pass\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1) ?: ""
                                         if (ip.isNotBlank()) {
                                             val profile = ConnectionProfile(

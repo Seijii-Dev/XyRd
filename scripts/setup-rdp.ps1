@@ -19,16 +19,15 @@ if (-not $env:RDP_PASSWORD -or $env:RDP_PASSWORD.Length -lt 8) {
   Log 'ERROR: secret RDP_PASSWORD not set / too short (min 8 characters).'; exit 1
 }
 $dur = [int]($env:DUR -replace '\D', ''); if ($dur -lt 10) { $dur = 360 }; if ($dur -gt 355) { $dur = 355 }
-$u = if ($env:RDP_USER) { $env:RDP_USER.Trim() } else { 'xyadmin' }
+$u = if ($env:RDP_USER) { $env:RDP_USER.Trim() } else { 'SeijiAdmin' }
 $reservedUsers = @('administrator','guest','defaultaccount','wdagutilityaccount','system','localservice','networkservice','con','prn','aux','nul')
 if ($u -notmatch '^[A-Za-z0-9][A-Za-z0-9_-]{2,19}$' -or $reservedUsers -contains $u.ToLower()) {
   Log 'ERROR: RDP_USER is invalid. Use 3–20 characters (letters/digits, _ or -); avoid built-in Windows names.'
   exit 1
 }
 $cfg = Get-Cfg
-$hostBase = ($env:HOSTNAME -replace '[^a-zA-Z0-9-]', '').ToLower().Trim('-'); if (-not $hostBase) { $hostBase = 'xyrdp' }
-if ($hostBase.Length -gt 30) { $hostBase = $hostBase.Substring(0, 30) }
-$hostName = "$hostBase-$env:GITHUB_RUN_NUMBER"
+$hostName = 'SeijiDesktop'
+Log 'fixed computer name: SeijiDesktop (not user-changeable)'
 
 $os = try { (Get-CimInstance Win32_OperatingSystem) } catch { $null }
 $osName = if ($os) { $os.Caption } else { 'Windows' }
@@ -50,7 +49,7 @@ if ($u.ToLower() -eq 'runneradmin') {
 }
 Add-LocalGroupMember -Group 'Administrators'         -Member $u -ErrorAction SilentlyContinue
 Add-LocalGroupMember -Group 'Remote Desktop Users'   -Member $u -ErrorAction SilentlyContinue
-# Ensure runneradmin also remains as a fallback (keep in case user uses xyadmin but wants runneradmin to RDP too)
+# Ensure runneradmin also remains as a fallback (keep in case user uses SeijiAdmin but wants runneradmin to RDP too)
 try { Add-LocalGroupMember -Group 'Administrators' -Member 'runneradmin' -ErrorAction SilentlyContinue } catch {}
 try { Add-LocalGroupMember -Group 'Remote Desktop Users' -Member 'runneradmin' -ErrorAction SilentlyContinue } catch {}
 

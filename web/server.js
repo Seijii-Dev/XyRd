@@ -159,7 +159,7 @@ async function handle(req, res) {
     if (req.method === 'GET' && url.pathname === '/api/config') {
       return send(200, {
         owner, repo, workflow,
-        rdp_user: CFG.rdp_user || 'xyadmin',
+        rdp_user: CFG.rdp_user || 'SeijiAdmin',
         rdp_password: CFG.rdp_password || '(set rdp_password in web/config.json)',
         rdp_port: 3389,
       });
@@ -178,7 +178,7 @@ async function handle(req, res) {
             const rdId = mRd ? mRd[1].replace(/\s+/g, '') : '';
             session = {
               active: true,
-              rdp_port: 3389, rdp_user: CFG.rdp_user || 'xyadmin',
+              rdp_port: 3389, rdp_user: CFG.rdp_user || 'SeijiAdmin',
               started_at: run.run_started_at || run.created_at,
               expires_at: new Date(Date.parse(run.run_started_at || run.created_at) + 360 * 60000).toISOString(),
               akses: {
@@ -211,7 +211,7 @@ async function handle(req, res) {
       const p = JSON.parse(body || '{}');
       const inputs = {
         durasi_menit: String(p.durasi || '360'),
-        hostname: String(p.hostname || 'xyrdp').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'xyrdp',
+        hostname: 'SeijiDesktop',
         akses: ['keduanya', 'rustdesk', 'tunnel'].includes(String(p.akses)) ? String(p.akses) : 'keduanya',
         tunnel_provider: ['otomatis', 'bore', 'ngrok'].includes(String(p.tunnel_provider)) ? String(p.tunnel_provider) : 'otomatis',
         win11: (p.win11 === 'tidak' ? 'tidak' : 'ya'),

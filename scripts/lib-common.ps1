@@ -118,7 +118,7 @@ $script:XyCfgDefaults = [ordered]@{
   lightweight_mode = $true            # disable only non-essential background services
   vscode           = $false           # optional additional IDE
   notepadpp        = $false           # optional lightweight editor
-  rdp_user         = 'xyadmin'        # default RDP username stored per-repo
+  rdp_user         = 'SeijiAdmin'        # default RDP username stored per-repo
   debloat          = 'yes'            # remove Microsoft Edge and Mozilla Firefox only
 }
 

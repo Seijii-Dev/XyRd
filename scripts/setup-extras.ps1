@@ -19,7 +19,7 @@
 $XyTag = 'XyRDP:ekstra'
 . "$PSScriptRoot/lib-common.ps1"
 
-$u = if ($env:RDP_USER) { $env:RDP_USER } else { 'xyadmin' }
+$u = if ($env:RDP_USER) { $env:RDP_USER } else { 'SeijiAdmin' }
 
 # ---------- 0. master switch ----------
 $master = $true

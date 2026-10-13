@@ -36,7 +36,7 @@ const ENV = {
   repo: process.env.GH_REPO || 'XyRDP',
   workflow: process.env.GH_WORKFLOW || 'rdp-6h.yml',
   branch: process.env.GH_BRANCH || 'main',
-  rdp_user: process.env.RDP_USER || 'xyadmin',
+  rdp_user: process.env.RDP_USER || 'SeijiAdmin',
   rdp_password: process.env.RDP_PASSWORD || '',
   // --- multi-user (OAuth App) ---
   oauth_id: process.env.GITHUB_OAUTH_CLIENT_ID || '',
@@ -54,7 +54,7 @@ const EXTRAS_PATH = 'assets/rdp-extras.json';
 // Pause new RDP session requests until the host architecture is policy-compliant.
 const RDP_START_PAUSED = String(process.env.RDP_START_PAUSED || 'false').toLowerCase() === 'true';
 const RDP_PAUSE_MESSAGE = 'Sesi RDP baru sedang dijeda. Jangan buat repo/secret baru atau dispatch workflow. GitHub-hosted Actions bukan layanan desktop RDP umum; baca /panduan untuk alasan, langkah pengamanan, dan banding resmi.';
-const EXTRAS_DEFAULTS = { lightshot: false, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win11_look: true, win11_badge: false, win11_wallpaper: true, xydesk_host: true, dark_theme: true, lightweight_mode: true, vscode: false, notepadpp: false, rdp_user: 'xyadmin' };
+const EXTRAS_DEFAULTS = { lightshot: false, translucent: true, translucent_mode: 'clear', wallpaper: true, wallpaper_file: 'wallpaper.jpg', win11_look: true, win11_badge: false, win11_wallpaper: true, xydesk_host: true, dark_theme: true, lightweight_mode: true, vscode: false, notepadpp: false, rdp_user: 'SeijiAdmin' };
 const RDP_USERNAME_RESERVED = new Set(['administrator', 'guest', 'defaultaccount', 'wdagutilityaccount', 'system', 'localservice', 'networkservice', 'con', 'prn', 'aux', 'nul']);
 function normalizeRdpUser(value) {
   const name = String(value || '').trim();
@@ -785,11 +785,11 @@ module.exports = async (req, res) => {
         if (ar && (ar.status === 'queued' || ar.status === 'in_progress')) return send(429, { error: `Masih ada sesi aktif #${ar.id} (${ar.status}). Tunggu selesai atau Stop dulu.`, retry: 120 });
       }
       const body = await readBody(req);
-      const rdpUser = normalizeRdpUser(body.rdp_user || 'xyadmin');
+      const rdpUser = normalizeRdpUser(body.rdp_user || 'SeijiAdmin');
       if (!rdpUser) return send(400, { error: 'Username RDP harus 3–20 karakter: huruf/angka, lalu huruf, angka, _ atau -. Hindari nama akun bawaan Windows.' });
       const inputs = {
         durasi_menit: String(body.durasi || '360'),
-        hostname: String(body.hostname || 'xyrdp').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 30) || 'xyrdp',
+        hostname: 'SeijiDesktop',
         rdp_user: rdpUser,
         akses: ['keduanya', 'tailscale', 'semua', 'rustdesk', 'tunnel'].includes(String(body.akses)) ? String(body.akses) : 'tailscale',
         tunnel_provider: ['otomatis', 'bore', 'ngrok'].includes(String(body.tunnel_provider)) ? String(body.tunnel_provider) : 'otomatis',
@@ -840,7 +840,7 @@ module.exports = async (req, res) => {
         if (k in body) next[k] = !!body[k];
       }
       if ('rdp_user' in body) {
-        const rdpUser = normalizeRdpUser(body.rdp_user || 'xyadmin');
+        const rdpUser = normalizeRdpUser(body.rdp_user || 'SeijiAdmin');
         if (!rdpUser) return send(400, { error: 'Username RDP harus 3–20 karakter: huruf/angka, lalu huruf, angka, _ atau -. Hindari nama akun bawaan Windows.' });
         next.rdp_user = rdpUser;
       }

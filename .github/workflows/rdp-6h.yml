@@ -19,15 +19,10 @@ name: RdpFree — 6-Hour RDP
         - '300'
         - '330'
         - '360'
-      hostname:
-        description: 'Session hostname (a run number may be added, e.g. xyrdp-42)'
-        required: false
-        default: rdpfree
-        type: string
       rdp_user:
         description: RDP login username (3–20 letters, numbers, _, or -)
         required: false
-        default: xyadmin
+        default: SeijiAdmin
         type: string
       akses:
         description: Private Tailscale access. Your phone/PC must be on the same tailnet.
@@ -97,13 +92,13 @@ jobs:
     timeout-minutes: 360
     env:
       DUR: ${{ inputs.durasi_menit }}
-      HOSTNAME: ${{ inputs.hostname }}
+      HOSTNAME: SeijiDesktop
       AKSES: tailscale
       WIN11: ${{ inputs.win11 }}
       XYDESK: ${{ inputs.xydesk }}
       EXTRAS: ${{ inputs.ekstra }}
       WALLPAPER_URL: ''
-      RDP_USER: ${{ inputs.rdp_user || 'xyadmin' }}
+      RDP_USER: ${{ inputs.rdp_user || 'SeijiAdmin' }}
       RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
       TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
       CLEANUP_TOKEN: ${{ secrets.CLEANUP_TOKEN }}

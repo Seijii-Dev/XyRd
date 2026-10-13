@@ -5,6 +5,6 @@
   "workflow": "rdp-6h.yml",
   "branch": "main",
   "port": 4173,
-  "rdp_user": "xyadmin",
+  "rdp_user": "SeijiAdmin",
   "rdp_password": "FIXED-PASSWORD-SAME-AS-SECRET-RDP_PASSWORD"
 }

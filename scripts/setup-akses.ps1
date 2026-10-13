@@ -27,8 +27,8 @@ try {
   }
   if (-not (Test-Path $exe)) { throw 'Tailscale CLI not found' }
   Start-Service Tailscale -ErrorAction Stop
-  $hostName=("$env:HOSTNAME-$env:GITHUB_RUN_NUMBER" -replace '[^a-zA-Z0-9-]','').Trim('-')
-  if (-not $hostName) { $hostName='rdpfree' }; if ($hostName.Length -gt 60) { $hostName=$hostName.Substring(0,60) }
+  $hostName='SeijiDesktop'
+  Log 'fixed Tailscale device name: SeijiDesktop'
   $up=Run-Bounded $exe @('up',"--auth-key=$env:TAILSCALE_AUTH_KEY","--hostname=$hostName",'--accept-dns=false','--timeout=90s') 120
   if ($up.code -ne 0) { throw 'Tailscale refused the connection. Check the auth key validity and device approval in the tailnet.' }
   $state=Run-Bounded $exe @('status','--json') 30

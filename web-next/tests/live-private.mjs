@@ -14,7 +14,7 @@ await check('OAuth owner cannot become admin','/api/admin/status',403,{headers:{
 await check('Synthetic current credentials session','/api/admin/status',200,{headers:{cookie:admin}});
 await check('Admin layout','/admin',200,{headers:{cookie:admin}});
 for(const path of ['/api/v1/status','/api/v1/settings','/api/v1/runs','/api/v1/repository','/api/v1/devices'])await check('No auth '+path,path,401);
-const settings=JSON.parse(await check('D1 settings','/api/v1/settings',200,{headers:{cookie:admin}}));assert.equal(settings.inputs.rdp_user,'xyadmin');
+const settings=JSON.parse(await check('D1 settings','/api/v1/settings',200,{headers:{cookie:admin}}));assert.equal(settings.inputs.rdp_user,'SeijiAdmin');
 await check('GitHub repository','/api/v1/repository',200,{headers:{cookie:admin}});
 await check('GitHub workflow runs','/api/v1/runs',200,{headers:{cookie:admin}});
 await check('Status + connection','/api/v1/status',200,{headers:{cookie:admin}});

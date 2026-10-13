@@ -39,8 +39,8 @@ Browser-only `/devices`: GET lists device metadata, POST `{name}` issues a token
   "phase": "ready",
   "active": true,
   "run": { "id": 123, "status": "in_progress", "html_url": "https://github.com/xykal/XyRDP/actions/runs/123" },
-  "session": { "hostname": "rdpfree", "started_at": "2026-10-10T18:00:00Z", "expires_at": "2026-10-10T18:30:00Z", "username": "xyadmin" },
-  "connection": { "host": "example.invalid", "port": 3389, "username": "xyadmin", "password_required": true, "transport": "tunnel" },
+  "session": { "hostname": "SeijiDesktop", "started_at": "2026-10-10T18:00:00Z", "expires_at": "2026-10-10T18:30:00Z", "username": "SeijiAdmin" },
+  "connection": { "host": "example.invalid", "port": 3389, "username": "SeijiAdmin", "password_required": true, "transport": "tunnel" },
   "server_time": "2026-10-10T18:05:00Z"
 }
 ```
@@ -54,7 +54,7 @@ RDP_PASSWORD is a GitHub Actions secret and **cannot be retrieved**. Prompt for 
 Fields mirror `.github/workflows/rdp-6h.yml`:
 `durasi_menit`, `hostname`, `rdp_user`, `akses`, `debloat`, `win11`, `xydesk`, `ekstra`, `microphone`, and `runner`. The `debloat` option removes only Microsoft Edge and Mozilla Firefox; it does not remove OneDrive, Xbox, AppX packages, or other Windows components.
 
-Get allowed choice values from `/settings`, do not invent input names. Default user `xyadmin`; optional `runneradmin` is accepted. Workflow job timeout is 360 minutes including setup, so a requested 360-minute session is not a guarantee of 360 minutes of usable desktop time. Settings do not alter already running jobs.
+Get allowed choice values from `/settings`, do not invent input names. Default user `SeijiAdmin`; optional `runneradmin` is accepted. Workflow job timeout is 360 minutes including setup, so a requested 360-minute session is not a guarantee of 360 minutes of usable desktop time. Settings do not alter already running jobs.
 
 Dispatch requires repository write permission, no active/queued run, and required Actions secrets (`RDP_PASSWORD`, plus Tailscale/ngrok keys when selected). Two start attempts per 5 minutes; an atomic 90-second repository lock prevents duplicate dispatch during GitHub eventual consistency. The application does not restart sessions automatically or promise protection against GitHub account enforcement. Use Actions in accordance with account policies and quotas.
 
