@@ -64,5 +64,5 @@
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "wallpaper": "xyverse_configured_for_user_logon"
   },
-  "heartbeat_at": "2026-10-14T13:20:08.0197655Z"
+  "heartbeat_at": "2026-10-14T13:25:15.1228293Z"
 }
