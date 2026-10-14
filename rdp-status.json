@@ -8,25 +8,17 @@
   "rdp_user": "SeijiAdmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-13T22:06:23Z",
-  "expires_at": "2026-10-14T04:01:23Z",
+  "started_at": "2026-10-14T04:30:44Z",
+  "expires_at": "2026-10-14T10:25:44Z",
   "duration_menit": 355,
-  "run_id": "38475430842",
-  "run_number": "15",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38475430842",
+  "run_id": "38511742975",
+  "run_number": "16",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38511742975",
   "mode": "clean+win11",
   "debloat": {
-    "mode": "registration-failed",
     "user": "SeijiAdmin",
+    "mode": "registration-failed",
     "error": "Cannot process argument transformation on parameter 'LogonType'. Cannot convert value \"InteractiveToken\" to type \"Microsoft.PowerShell.Cmdletization.GeneratedTypes.ScheduledTask.LogonTypeEnum\". Error: \"Unable to match the identifier name InteractiveToken to a valid enumerator name. Specify one of the following enumerator names and try again:\r\nNone, Password, S4U, Interactive, Group, ServiceAccount, InteractiveOrPassword\""
-  },
-  "win11": {
-    "look": "ok",
-    "badge": "not_modified",
-    "wallpaper": "ok",
-    "search": "ok",
-    "os": "Microsoft Windows Server 2025 Datacenter",
-    "note": "Windows 11-style appearance only; use a Windows 11 self-hosted runner for the actual OS"
   },
   "xydesk": {
     "host": "ok",
@@ -58,11 +50,11 @@
   },
   "akses": {
     "tailscale": {
-      "magicdns": "seijidesktop-2.tail4b745d.ts.net.",
-      "ip": "100.78.22.16",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
+      "hostname": "SeijiDesktop",
+      "magicdns": "seijidesktop-3.tail4b745d.ts.net.",
       "status": "ok",
-      "hostname": "SeijiDesktop"
+      "ip": "100.94.181.37"
     },
     "mode": "tailscale"
   },
@@ -71,6 +63,5 @@
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "audio_output": "rdp_playback_enabled",
     "microphone": "rdp_capture_enabled"
-  },
-  "heartbeat_at": "2026-10-14T03:20:42.9820176Z"
+  }
 }
