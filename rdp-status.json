@@ -52,5 +52,6 @@
     "wallpaper": "xyverse_configured_for_user_logon",
     "microphone": "rdp_capture_enabled",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
-  }
+  },
+  "heartbeat_at": "2026-10-15T11:35:38.5473751Z"
 }
