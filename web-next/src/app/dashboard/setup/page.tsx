@@ -1,2 +1,2 @@
 import SetupPanel from "../setup-panel";
-export default function Page(){return <><span className="eyebrow">Workspace / Setup</span><h1>Repository, then connections.</h1><p>Use the Seiji-RMD template in your account, connect the secrets, and check the workflow readiness.</p><SetupPanel expanded/></>}
+export default function Page(){return <><span className="eyebrow">Workspace / Setup</span><h1>Repository, then connections.</h1><p>Use the Seiji-PC template in your account, connect the secrets, and check the workflow readiness.</p><SetupPanel expanded/></>}

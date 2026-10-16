@@ -1,6 +1,6 @@
-# RdpFree native API v1
+# Seiji-PC native API v1
 
-Base URL: `https://rdpfree.projectkal.my.id/api/v1`
+Base URL: `https://seiji-rmd-web.vercel.app/api/v1`
 
 ## Authentication
 
@@ -35,10 +35,10 @@ Browser-only `/devices`: GET lists device metadata, POST `{name}` issues a token
 
 ```json
 {
-  "repo": "xykal/XyRDP",
+  "repo": "owner/Seiji-PC",
   "phase": "ready",
   "active": true,
-  "run": { "id": 123, "status": "in_progress", "html_url": "https://github.com/xykal/XyRDP/actions/runs/123" },
+  "run": { "id": 123, "status": "in_progress", "html_url": "https://github.com/owner/Seiji-PC/actions/runs/123" },
   "session": { "hostname": "SeijiDesktop", "started_at": "2026-10-10T18:00:00Z", "expires_at": "2026-10-10T18:30:00Z", "username": "SeijiAdmin" },
   "connection": { "host": "example.invalid", "port": 3389, "username": "SeijiAdmin", "password_required": true, "transport": "tunnel" },
   "server_time": "2026-10-10T18:05:00Z"
@@ -73,9 +73,9 @@ Never automatically retry POST `/runs` after an ambiguous network error. Refresh
 
 ## Repository onboarding update
 
-`GET /setup` exposes selected repository readiness. When no repository/workflow exists, `/status` returns HTTP 200 with `phase: "setup_required"`, `active: false`, null run/connection, and a `setup` object. Direct the user to `https://rdpfree.projectkal.my.id/dashboard/setup`; do not start a workflow in this state.
+`GET /setup` exposes selected repository readiness. When no repository/workflow exists, `/status` returns HTTP 200 with `phase: "setup_required"`, `active: false`, null run/connection, and a `setup` object. Direct the user to `https://seiji-rmd-web.vercel.app/dashboard/setup`; do not start a workflow in this state.
 
-Browser-only `POST /setup` actions: `create` (`name`, `private`, `confirm:true`), `connect` (`name`), `finish`. `finish` is independently retryable while GitHub template generation propagates. The selected repo is persisted server-side and no longer assumes `/XyRDP`. Existing native tokens retain their originally granted repo; token issuance now requires a ready repository.
+Browser-only `POST /setup` actions: `create` (`name`, `private`, `confirm:true`), `connect` (`name`), `finish`. `finish` is independently retryable while GitHub template generation propagates. The selected repo is persisted server-side and no longer assumes `/Seiji-PC`. Existing native tokens retain their originally granted repo; token issuance now requires a ready repository.
 
 Browser-only POST `/secrets` and POST/DELETE `/credentials` do not accept bearer device tokens. Native clients never receive the dashboard's stored password copy; prompt locally for RDP_PASSWORD. Website password controls support show/hide/copy and optional encrypted storage.
 
@@ -88,6 +88,6 @@ Previously issued non-admin device tokens carrying OAuth grants are no longer ac
 ## Current workflow schema
 Only Tailscale access is accepted. Persisted legacy settings are migrated on read, but removed game and storage-boost options are rejected for new writes. Settings affect the next workflow run, not an active desktop.
 
-### Schema 3 / automatic XyVerse wallpaper
+### Schema 3 / automatic Seiji-PC wallpaper
 
-The host now always uses the original `assets/wallpaper.jpg` anime XyVerse image. `wallpaper` and `wallpaper_url` are removed from settings and workflow dispatch; legacy client values are ignored. Sync workflow + scripts + assets together. Host policy permits wallpaper, but the RDP client must also negotiate `+wallpaper`. Existing connected sessions need disconnect/reconnect and existing desktop profiles may need sign out/sign in. A configuration or CLI test is not a Windows/Android visual acceptance test.
+The host now always uses the original `assets/wallpaper.jpg` anime Seiji-PC image. `wallpaper` and `wallpaper_url` are removed from settings and workflow dispatch; legacy client values are ignored. Sync workflow + scripts + assets together. Host policy permits wallpaper, but the RDP client must also negotiate `+wallpaper`. Existing connected sessions need disconnect/reconnect and existing desktop profiles may need sign out/sign in. A configuration or CLI test is not a Windows/Android visual acceptance test.

@@ -1,8 +1,8 @@
-# RdpFree wallpaper and real RDP audio-input redirection. Credit: KallAncrit.
-$XyTag='RdpFree:media'
+# SeijiPC wallpaper and real RDP audio-input redirection. Credit: KallAncrit.
+$SeijiTag='SeijiPC:media'
 . "$PSScriptRoot/lib-common.ps1"
 $ErrorActionPreference = 'Stop'
-$root='C:\ProgramData\RdpFree'
+$root='C:\ProgramData\SeijiPC'
 New-Item -ItemType Directory -Path $root -Force | Out-Null
 $mic = $env:MICROPHONE -notin @('tidak','no','0','false','off')
 $wall=$true
@@ -20,7 +20,7 @@ if ($wall) {
   Copy-Item (Join-Path (Get-Workspace) 'assets\wallpaper.jpg') $target -Force
   $apply=Join-Path $root 'Apply-Desktop.ps1'
   $script=@'
-$root='C:\ProgramData\RdpFree'
+$root='C:\ProgramData\SeijiPC'
 $image=Get-Content (Join-Path $root 'wallpaper-path.txt') -Raw
 $image=$image.Trim()
 if (-not (Test-Path $image)) { exit 1 }
@@ -29,8 +29,8 @@ Set-ItemProperty $desk -Name Wallpaper -Value $image
 Set-ItemProperty $desk -Name WallpaperStyle -Value '10'
 Set-ItemProperty $desk -Name TileWallpaper -Value '0'
 
-Add-Type -TypeDefinition 'using System.Runtime.InteropServices; public class RdpFreeDesktop { [DllImport("user32.dll",CharSet=CharSet.Unicode,SetLastError=true)] public static extern bool SystemParametersInfo(int a,int b,string c,int d); }'
-[RdpFreeDesktop]::SystemParametersInfo(20,0,$image,3) | Out-Null
+Add-Type -TypeDefinition 'using System.Runtime.InteropServices; public class SeijiPCDesktop { [DllImport("user32.dll",CharSet=CharSet.Unicode,SetLastError=true)] public static extern bool SystemParametersInfo(int a,int b,string c,int d); }'
+[SeijiPCDesktop]::SystemParametersInfo(20,0,$image,3) | Out-Null
 '@
   $script | Set-Content $apply -Encoding UTF8
   $target | Set-Content (Join-Path $root 'wallpaper-path.txt') -Encoding UTF8
@@ -40,10 +40,10 @@ Add-Type -TypeDefinition 'using System.Runtime.InteropServices; public class Rdp
   $active='Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Active Setup\Installed Components\{86C45F69-A012-4D8E-BC70-4A3B4A597652}'
   Set-Reg $active 'Version' '3,0,0,0' 'String' | Out-Null
   Set-Reg $active 'StubPath' "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$apply`"" 'String' | Out-Null
-  Set-RegBoth 'Software\Microsoft\Windows\CurrentVersion\Run' 'RdpFreeWallpaper' "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$apply`"" 'String' | Out-Null
+  Set-RegBoth 'Software\Microsoft\Windows\CurrentVersion\Run' 'SeijiPCWallpaper' "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$apply`"" 'String' | Out-Null
   Close-DefaultHive
   if ((Get-ItemPropertyValue -Path $policy -Name 'fNoRemoteDesktopWallpaper') -ne 0) { throw 'Windows policy still blocks Remote Desktop wallpaper' }
-  $wallStatus='xyverse_configured_for_user_logon'
+  $wallStatus='wallpaper_configured_for_user_logon'
 }
 Update-Status @{media=@{wallpaper=$wallStatus;microphone=$(if ($mic) {'rdp_capture_enabled'} else {'disabled'});audio_output='rdp_playback_enabled';verification='Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.'}} | Out-Null
 Log 'Profile wallpaper and audio capture prepared; audio testing still requires a connected client.'

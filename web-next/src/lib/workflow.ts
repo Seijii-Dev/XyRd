@@ -1,6 +1,6 @@
 import {ApiError,Context,gh} from "./api";
 import {db} from "./db";
-export const choices:Record<string,string[]>={durasi_menit:["15","30","60","120","180","240","300","330","360"],akses:["tailscale"],runner:["github","self-hosted"],microphone:["yes","no"],debloat:["yes","no"],win11:["yes","no"],xydesk:["yes","no"],ekstra:["yes","no"]};
+export const choices:Record<string,string[]>={durasi_menit:["15","30","60","120","180","240","300","330","360"],akses:["tailscale"],runner:["github","self-hosted"],microphone:["yes","no"],debloat:["yes","silent","no"],win11:["yes","no"],xydesk:["yes","no"],ekstra:["yes","no"]};
 export const defaults:Record<string,string>={durasi_menit:"360",rdp_user:"SeijiAdmin",akses:"tailscale",runner:"github",microphone:"yes",debloat:"yes",win11:"yes",xydesk:"yes",ekstra:"yes"};
 export function validate(raw:Record<string,unknown>){const inputs={...defaults};for(const [k,v] of Object.entries(raw)){if(k==="wallpaper"||k==="wallpaper_url")continue;if(!(k in defaults)||typeof v!=="string")throw new ApiError(400,"Unknown parameter: "+k);inputs[k]=v;}
  for(const [k,allowed] of Object.entries(choices))if(!allowed.includes(inputs[k]))throw new ApiError(400,"Invalid choice: "+k);

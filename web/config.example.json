@@ -1,7 +1,7 @@
 {
   "token": "ghp_CTOKEN_GITHUB_DISINI",
   "owner": "xykal",
-  "repo": "XyRDP",
+  "repo": "Seiji-PC",
   "workflow": "rdp-6h.yml",
   "branch": "main",
   "port": 4173,

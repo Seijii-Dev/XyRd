@@ -21,14 +21,14 @@ export const authOptions: NextAuthOptions = {
   const result=await crypto.subtle.deriveBits({name:"PBKDF2",salt:new TextEncoder().encode(salt),iterations:100000,hash:"SHA-256"},key,256);
   const a=Buffer.from(result),z=Buffer.from(expected,"hex");
   if(a.length!==z.length||!timingSafeEqual(a,z)||c.email.trim().toLowerCase()!==process.env.ADMIN_EMAIL.toLowerCase())return null;
-  return {id:"rdpfree-admin",name:"Admin",email:process.env.ADMIN_EMAIL};
+  return {id:"seijipc-admin",name:"Admin",email:process.env.ADMIN_EMAIL};
  }})],
  session: {strategy: "jwt", maxAge: 30*24*60*60},
  pages: {signIn: "/login"},
  callbacks: {
   async jwt({token,account,profile,user}) {
    if(account?.provider === "github") {delete token.accessToken;token.login=(profile as {login?:string})?.login;token.githubId=account.providerAccountId;token.authKind="github";delete token.credVersion;}
-   if(account?.provider === "credentials"&&user?.id==="rdpfree-admin"){token.authKind="admin";token.credVersion=process.env.ADMIN_CREDENTIAL_VERSION;token.login="Admin";delete token.accessToken;delete token.githubId;}
+   if(account?.provider === "credentials"&&user?.id==="seijipc-admin"){token.authKind="admin";token.credVersion=process.env.ADMIN_CREDENTIAL_VERSION;token.login="Admin";delete token.accessToken;delete token.githubId;}
    if(token.authKind==="github")delete token.accessToken;
    token.role=token.authKind==="admin"&&!!process.env.ADMIN_CREDENTIAL_VERSION&&token.credVersion===process.env.ADMIN_CREDENTIAL_VERSION?"admin":"user";
    return token;

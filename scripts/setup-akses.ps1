@@ -1,8 +1,8 @@
-# RdpFree: private Tailscale access only. Credit: KallAncrit.
-$XyTag = 'RdpFree:access'
+# SeijiPC: private Tailscale access only. Credit: KallAncrit.
+$SeijiTag = 'SeijiPC:access'
 . "$PSScriptRoot/lib-common.ps1"
 $ErrorActionPreference = 'Stop'
-$work = 'C:\ProgramData\RdpFree\access'
+$work = 'C:\ProgramData\SeijiPC\access'
 New-Item -ItemType Directory -Path $work -Force | Out-Null
 function Run-Bounded([string]$File, [string[]]$ArgsList, [int]$Seconds=90) {
   $out = Join-Path $work ([guid]::NewGuid().ToString('N')+'.out')

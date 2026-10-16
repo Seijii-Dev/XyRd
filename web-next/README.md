@@ -1,6 +1,6 @@
-# RdpFree — Next.js + Cloudflare Workers
+# Seiji-PC — Next.js + Cloudflare Workers
 
-Live: https://rdpfree.projectkal.my.id
+Live: https://seiji-rmd-web.vercel.app
 
 Next.js 15.5.27, NextAuth 4, OpenNext, Workers and D1. Node 22+.
 
@@ -20,7 +20,7 @@ Next.js 15.5.27, NextAuth 4, OpenNext, Workers and D1. Node 22+.
 
 Worker secrets: `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `GITHUB_ID`, `GITHUB_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `ADMIN_CREDENTIAL_VERSION`, `ADMIN_REPO`, `ADMIN_GITHUB_TOKEN`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`.
 
-`NEXTAUTH_URL=https://rdpfree.projectkal.my.id`; OAuth callback is `/api/auth/callback/github` on that origin. Turnstile widget is restricted to this hostname and uses action `admin_login`. Admin password and Turnstile are configured; the credential handoff file is outside the repository.
+`NEXTAUTH_URL=https://seiji-rmd-web.vercel.app`; OAuth callback is `/api/auth/callback/github` on that origin. Turnstile widget is restricted to this hostname and uses action `admin_login`. Admin password and Turnstile are configured; the credential handoff file is outside the repository.
 
 Cloudflare D1 binding `DB`, schema in `schema.sql`. Runtime auth secrets must be stable across builds; do not rotate `NEXTAUTH_SECRET` casually as it encrypts browser sessions and stored device grants. A stolen device must be revoked independently.
 

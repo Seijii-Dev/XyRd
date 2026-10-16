@@ -1,4 +1,4 @@
-# RdpFree
+# Seiji-PC
 
 Dashboard: **https://seiji-rmd-web.vercel.app** · Credit: **Seijixinghe888**
 
@@ -18,12 +18,14 @@ The fixed computer name is `SeijiDesktop`. The default RDP username is `SeijiAdm
 - Windows 11 appearance settings on the `windows-2025` runner.
 - Private Tailscale access to RDP port 3389.
 - XyDesk Remote host setup with audio and microphone support.
-- Automatic XyVerse wallpaper, optional desktop extras, ChatGPT Codex desktop app with a Public Desktop shortcut.
+- Automatic Seiji-PC wallpaper, optional desktop extras, ChatGPT Codex desktop app with a Public Desktop shortcut.
 - Repository-bound dashboard and native API device tokens.
 
 **Games and storage boost have been removed.** They are no longer available in the workflow, dashboard, API settings, scripts, or documentation.
 
-When **Debloat** is enabled, the first RDP login opens a visible one-time PowerShell prompt. It runs the Microsoft Edge `setup.exe --uninstall --system-level --verbose-logging --force-uninstall` command and removes Mozilla Firefox, then cleans up its scheduled task.
+**Debloat** has three modes: `yes` (visible PowerShell prompt at first login), `silent` (Edge and Firefox are removed automatically during setup, no window) and `no`.
+
+In `yes` mode, the first RDP login opens a visible one-time PowerShell prompt. It runs the Microsoft Edge `setup.exe --uninstall --system-level --verbose-logging --force-uninstall` command and removes Mozilla Firefox, then cleans up its scheduled task.
 
 ## Source layout
 

@@ -11,7 +11,7 @@
 #  do not have a public inbound); only reachable via tunnel/Tailscale.
 # ============================================================================
 
-$XyTag = 'XyRDP:rdp'
+$SeijiTag = 'SeijiPC:rdp'
 . "$PSScriptRoot/lib-common.ps1"
 
 # ---------- 0. Validation ----------
@@ -45,7 +45,7 @@ if ($u.ToLower() -eq 'runneradmin') {
   try { Set-LocalUser -Name $u -PasswordNeverExpires $true -AccountNeverExpires -ErrorAction SilentlyContinue } catch {}
 } else {
   if (Get-LocalUser -Name $u -ErrorAction SilentlyContinue) { Remove-LocalUser -Name $u }
-  New-LocalUser -Name $u -Password $sp -FullName 'XyRDP Admin' -PasswordNeverExpires -AccountNeverExpires -Description 'XyRDP remote user' | Out-Null
+  New-LocalUser -Name $u -Password $sp -FullName 'Seiji-PC Admin' -PasswordNeverExpires -AccountNeverExpires -Description 'Seiji-PC remote user' | Out-Null
 }
 Add-LocalGroupMember -Group 'Administrators'         -Member $u -ErrorAction SilentlyContinue
 Add-LocalGroupMember -Group 'Remote Desktop Users'   -Member $u -ErrorAction SilentlyContinue

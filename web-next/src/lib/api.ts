@@ -7,7 +7,7 @@ export type GitHubDiagnostic={provider:"github";status:number;endpoint:string;co
 export class ApiError extends Error {constructor(public status:number,message:string,public diagnostic?:GitHubDiagnostic){super(message)}}
 export const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
 export const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{"Cache-Control":"private, no-store"}});
-export function origin(req:NextRequest){const allowed=new Set([process.env.NEXTAUTH_URL,"https://seiji-rmd-web.vercel.app","https://rdpfree.projectkal.my.id"].filter(Boolean));if(req.headers.get("origin")&&!allowed.has(req.headers.get("origin")!))throw new ApiError(403,"Origin not allowed");}
+export function origin(req:NextRequest){const allowed=new Set([process.env.NEXTAUTH_URL,"https://seiji-rmd-web.vercel.app","https://seiji-rmd-web.vercel.app"].filter(Boolean));if(req.headers.get("origin")&&!allowed.has(req.headers.get("origin")!))throw new ApiError(403,"Origin not allowed");}
 export async function body(req:NextRequest){const raw=await req.text();if(raw.length>16384)throw new ApiError(413,"Payload too large");try{const d=JSON.parse(raw);if(!d||typeof d!=="object"||Array.isArray(d))throw Error();return d as Record<string,unknown>;}catch{throw new ApiError(400,"Invalid JSON")}}
 async function selected(subject:string,fallback:string){const r=await db().prepare("SELECT repo FROM repositories WHERE subject=?").bind(subject).first<{repo:string}>();return r?.repo||fallback;}
 export async function context(req:NextRequest,browserOnly=false):Promise<Context>{
@@ -20,7 +20,7 @@ export async function context(req:NextRequest,browserOnly=false):Promise<Context
   const d=await decode({token:row.payload,secret:process.env.NEXTAUTH_SECRET!});
   if(!d||typeof d.repo!=="string")throw new ApiError(401,"Invalid device session");
   if(row.subject!=="admin"){
-   if(d.binding!=="github_app")throw new ApiError(401,"Old device token is no longer used. Connect the GitHub App then create a new Seiji-RMD token.");
+   if(d.binding!=="github_app")throw new ApiError(401,"Old device token is no longer used. Connect the GitHub App then create a new Seiji-PC token.");
    const grant=await (await import("./github-app")).installationToken(row.subject,d.repo);
    return {...grant,repo:d.repo,subject:row.subject,kind:"device",deviceId:row.id};
   }
@@ -37,7 +37,7 @@ export async function context(req:NextRequest,browserOnly=false):Promise<Context
  throw new ApiError(401,"Please sign in again");
 }
 export async function github<T=Record<string,unknown>>(token:string,path:string,method="GET",data?:unknown):Promise<T>{
- const r=await fetch("https://api.github.com"+path,{method,headers:{Authorization:"Bearer "+token,"User-Agent":"RdpFree","Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(data?{"Content-Type":"application/json"}:{})},body:data?JSON.stringify(data):undefined,cache:"no-store",signal:AbortSignal.timeout(25000)});
+ const r=await fetch("https://api.github.com"+path,{method,headers:{Authorization:"Bearer "+token,"User-Agent":"Seiji-PC","Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(data?{"Content-Type":"application/json"}:{})},body:data?JSON.stringify(data):undefined,cache:"no-store",signal:AbortSignal.timeout(25000)});
  if(!r.ok){
   let message="GitHub rejected the request";try{const d=await r.json();if(typeof d.message==="string")message=d.message.slice(0,350)}catch{}
   message=message.replace(/(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)/g,"[redacted]");

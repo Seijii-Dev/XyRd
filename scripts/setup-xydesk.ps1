@@ -26,7 +26,7 @@
 #  Configuration: assets/rdp-extras.json -> xydesk_host = true/false
 # ============================================================================
 
-$XyTag = 'XyRDP:xydesk'
+$SeijiTag = 'SeijiPC:xydesk'
 . "$PSScriptRoot/lib-common.ps1"
 
 $cfg = Get-Cfg

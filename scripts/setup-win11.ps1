@@ -18,7 +18,7 @@
 #  win11_wallpaper (can be changed from the web dashboard).
 # ============================================================================
 
-$XyTag = 'XyRDP:win11'
+$SeijiTag = 'SeijiPC:win11'
 . "$PSScriptRoot/lib-common.ps1"
 
 # ---------- 0. master switch ----------
@@ -139,9 +139,9 @@ $wallStatus = 'skip'
 $wpFile = Get-Win11WallpaperFile
 if ($wpFile) {
   try {
-    New-Item -ItemType Directory -Path 'C:\XyRDP' -Force | Out-Null
+    New-Item -ItemType Directory -Path 'C:\SeijiPC' -Force | Out-Null
     $ext = [IO.Path]::GetExtension($wpFile).TrimStart('.').ToLower(); if (-not $ext) { $ext = 'jpg' }
-    $local = "C:\XyRDP\wallpaper-win11.$ext"
+    $local = "C:\SeijiPC\wallpaper-win11.$ext"
     Copy-Item $wpFile $local -Force
     # desktop wallpaper (Default profile + current session)
     Set-RegBoth 'Control Panel\Desktop' 'Wallpaper'      $local 'String' | Out-Null

@@ -1,5 +1,5 @@
-# RdpFree: disconnect only its Tailscale session, never kill unrelated SSH processes.
-$XyTag='RdpFree:finalize'
+# SeijiPC: disconnect only its Tailscale session, never kill unrelated SSH processes.
+$SeijiTag='SeijiPC:finalize'
 . "$PSScriptRoot/lib-common.ps1"
 $exe="$env:ProgramFiles\Tailscale\tailscale.exe"
 if (Test-Path $exe) {

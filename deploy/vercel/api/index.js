@@ -1,5 +1,5 @@
 /* ============================================================================
- * XyRDP Dashboard — Vercel catch-all function (Node, tanpa dependency)
+ * Seiji-PC Dashboard — Vercel catch-all function (Node, tanpa dependency)
  *
  * DUA MODE AKSES
  *  1) ADMIN — login email AUTH_USER + AUTH_PASS, diverifikasi Cloudflare
@@ -254,7 +254,7 @@ async function gh(token, method, apiPath, body) {
   const res = await fetch(API + apiPath, {
     method,
     headers: {
-      'User-Agent': 'XyRDP-vc', 'Authorization': `Bearer ${token || ''}`,
+      'User-Agent': 'Seiji-PC-vc', 'Authorization': `Bearer ${token || ''}`,
       'X-GitHub-Api-Version': '2022-11-28',
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
@@ -362,7 +362,7 @@ async function readLog(ctx, runId) {
   const job = jobs && jobs.jobs ? jobs.jobs[0] : null;
   if (!job) return '';
   const res = await fetch(`${API}/repos/${ctx.owner}/${ctx.repo}/actions/jobs/${job.id}/logs`, {
-    headers: { 'User-Agent': 'XyRDP-vc', 'Authorization': `Bearer ${ctx.token}` }, redirect: 'follow',
+    headers: { 'User-Agent': 'Seiji-PC-vc', 'Authorization': `Bearer ${ctx.token}` }, redirect: 'follow',
   });
   if (!res.ok) throw new Error('log ' + res.status);
   const buf = Buffer.from(await res.arrayBuffer());
@@ -468,7 +468,7 @@ module.exports = async (req, res) => {
     if (p === '/' || p === '/index.html' || /^\/(id|en)(\/|$)/.test(p) || ['/home','/folder','/settings','/logs'].includes(p)) {
       try {
         return send(200, fs.readFileSync(path.join(__dirname, '..', 'assets', 'index.html'), 'utf8'), 'text/html');
-      } catch { return send(200, '<h1>RdpFree</h1>', 'text/html'); }
+      } catch { return send(200, '<h1>Seiji-PC</h1>', 'text/html'); }
     }
     if (p === '/panduan' || p === '/guide' || p === '/id/guide' || p === '/en/guide') {
       try {
@@ -532,12 +532,12 @@ module.exports = async (req, res) => {
       if (!cookies.ost || cookies.ost !== state) return redirect('/?err=state_tidak_cocok');
       const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'User-Agent': 'XyRDP-vc' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'User-Agent': 'Seiji-PC-vc' },
         body: JSON.stringify({ client_id: ENV.oauth_id, client_secret: ENV.oauth_secret, code, redirect_uri: `${origin}/api/auth/callback` }),
       });
       const tok = await tokenRes.json().catch(() => ({}));
       if (!tok.access_token) return redirect('/?err=' + encodeURIComponent(tok.error || 'token_github_gagal'));
-      const meRes = await fetch(API + '/user', { headers: { 'User-Agent': 'XyRDP-vc', 'Authorization': `Bearer ${tok.access_token}`, 'X-GitHub-Api-Version': '2022-11-28' } });
+      const meRes = await fetch(API + '/user', { headers: { 'User-Agent': 'Seiji-PC-vc', 'Authorization': `Bearer ${tok.access_token}`, 'X-GitHub-Api-Version': '2022-11-28' } });
       if (!meRes.ok) return redirect('/?err=profil_github_gagal');
       const me = await meRes.json();
       const payload = {
@@ -562,13 +562,13 @@ module.exports = async (req, res) => {
       if (body.__too_large) return send(413, { error: 'Permintaan login terlalu besar.' });
       const human = await verifyTurnstile(String(body.turnstile || ''), req);
       if (!human.ok) {
-        console.warn('[XyRDP] Admin login ditolak Turnstile:', human.reason);
+        console.warn('[Seiji-PC] Admin login ditolak Turnstile:', human.reason);
         const failed = loginRate(req, true);
         if (failed.locked) return send(429, { error: 'Terlalu banyak percobaan login. Coba lagi setelah beberapa menit.' }, 'application/json', { 'Retry-After': String(failed.retry) });
         return send(403, { error: 'Verifikasi Cloudflare gagal atau kedaluwarsa. Selesaikan widget lagi, lalu coba masuk.' });
       }
       if (!credsOk(String(body.user || ''), String(body.pass || ''))) {
-        console.warn('[XyRDP] Admin login ditolak: email/sandi tidak cocok.');
+        console.warn('[Seiji-PC] Admin login ditolak: email/sandi tidak cocok.');
         const failed = loginRate(req, true);
         if (failed.locked) return send(429, { error: 'Terlalu banyak percobaan login. Coba lagi setelah beberapa menit.' }, 'application/json', { 'Retry-After': String(failed.retry) });
         return send(403, { error: 'Email admin atau kata sandi salah. Pastikan memakai email admin yang diizinkan dan periksa Caps Lock.' });
@@ -646,7 +646,7 @@ module.exports = async (req, res) => {
       if (!st.exists) {
         const [tplOwner, tplRepo] = ENV.template.split('/');
         const gen = await ghSoft(ctx.token, 'POST', `/repos/${tplOwner}/${tplRepo}/generate`, {
-          owner: ctx.login, name, description: 'Sesi RDP Windows (XyRDP) — otomatis dari template',
+          owner: ctx.login, name, description: 'Sesi RDP Windows (Seiji-PC) — otomatis dari template',
           include_all_branches: false, private: isPrivate,
         });
         if (!gen.ok) {
@@ -850,7 +850,7 @@ module.exports = async (req, res) => {
       }
       const content = Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8').toString('base64');
       await gh(ctx.token, 'PUT', `/repos/${ctx.owner}/${ctx.repo}/contents/${EXTRAS_PATH}`,
-        { message: 'XyRDP: update konfigurasi ekstra (via dashboard)', content, branch: ctx.branch || ENV.branch, ...(sha ? { sha } : {}) });
+        { message: 'Seiji-PC: update konfigurasi ekstra (via dashboard)', content, branch: ctx.branch || ENV.branch, ...(sha ? { sha } : {}) });
       return send(200, { ok: true, config: next });
     }
 
@@ -873,7 +873,7 @@ module.exports = async (req, res) => {
           for (const f of list) {
             if (WALLPAPER_RE.test(f.name) && f.name !== `wallpaper.${ext}`) {
               await gh(ctx.token, 'DELETE', `/repos/${ctx.owner}/${ctx.repo}/contents/${f.path}`,
-                { message: `XyRDP: hapus ${f.name} (diganti wallpaper baru)`, sha: f.sha, branch: br });
+                { message: `Seiji-PC: hapus ${f.name} (diganti wallpaper baru)`, sha: f.sha, branch: br });
             }
           }
         }
@@ -881,13 +881,13 @@ module.exports = async (req, res) => {
       let curSha = null;
       try { const cur = await gh(ctx.token, 'GET', `/repos/${ctx.owner}/${ctx.repo}/contents/${target}?ref=${br}`); curSha = cur && cur.sha; } catch { /* file baru */ }
       await gh(ctx.token, 'PUT', `/repos/${ctx.owner}/${ctx.repo}/contents/${target}`, {
-        message: `XyRDP: wallpaper baru (${Math.round(buf.length / 1024)} KB, via dashboard)`,
+        message: `Seiji-PC: wallpaper baru (${Math.round(buf.length / 1024)} KB, via dashboard)`,
         content: buf.toString('base64'), branch: br, ...(curSha ? { sha: curSha } : {}),
       });
       const { json: cfgJson, sha: cfgSha } = await readRepoFile(ctx, EXTRAS_PATH);
       const next = Object.assign({}, EXTRAS_DEFAULTS, cfgJson || {}, { wallpaper: true, wallpaper_file: `wallpaper.${ext}` });
       await gh(ctx.token, 'PUT', `/repos/${ctx.owner}/${ctx.repo}/contents/${EXTRAS_PATH}`, {
-        message: 'XyRDP: aktifkan wallpaper baru (via dashboard)',
+        message: 'Seiji-PC: aktifkan wallpaper baru (via dashboard)',
         content: Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8').toString('base64'), branch: br, ...(cfgSha ? { sha: cfgSha } : {}),
       });
       return send(200, { ok: true, file: `wallpaper.${ext}`, size_kb: Math.round(buf.length / 1024) });

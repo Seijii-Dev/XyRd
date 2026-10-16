@@ -1,5 +1,5 @@
-# RdpFree session lifetime uses the published expiry, not a fresh full duration after setup.
-$XyTag='RdpFree:session'
+# SeijiPC session lifetime uses the published expiry, not a fresh full duration after setup.
+$SeijiTag='SeijiPC:session'
 . "$PSScriptRoot/lib-common.ps1"
 $st=Read-Status
 if (-not $st -or -not $st.expires_at) { throw 'Status does not have expires_at' }

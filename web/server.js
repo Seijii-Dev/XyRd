@@ -1,6 +1,6 @@
 /* ============================================================================
- * RdpFree Dashboard — server.js (no dependencies, Node >= 18)
- * Runs & monitors the "RdpFree" workflow on GitHub Actions via the REST API.
+ * Seiji-PC Dashboard — server.js (no dependencies, Node >= 18)
+ * Runs & monitors the "Seiji-PC" workflow on GitHub Actions via the REST API.
  * RDP password is stored LOCALLY in config.json — never in a public repo.
  * Run:  node server.js   → http://localhost:4173
  * ==========================================================================*/
@@ -15,7 +15,7 @@ const { token, owner, repo, workflow = 'rdp-6h.yml', branch = 'main', port = 417
 const host = process.env.HOST || '127.0.0.1';
 const STATUS_RAW = `https://raw.githubusercontent.com/${owner}/${repo}/status/rdp-status.json`;
 const API = 'https://api.github.com';
-const UA = { 'User-Agent': 'RdpFree-dash', 'Authorization': `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' };
+const UA = { 'User-Agent': 'Seiji-PC-dash', 'Authorization': `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' };
 
 let statusCache = { at: 0, data: null };
 
@@ -272,7 +272,7 @@ async function handle(req, res) {
       }
       const content = Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8').toString('base64');
       await gh('PUT', `/repos/${owner}/${repo}/contents/${EXTRAS_PATH}`,
-        { message: 'RdpFree: update extra configuration (via dashboard)', content, branch, ...(sha ? { sha } : {}) });
+        { message: 'Seiji-PC: update extra configuration (via dashboard)', content, branch, ...(sha ? { sha } : {}) });
       return send(200, { ok: true, config: next });
     }
 
@@ -295,7 +295,7 @@ async function handle(req, res) {
           for (const f of list) {
             if (WALLPAPER_RE.test(f.name) && f.name !== `wallpaper.${ext}`) {
               await gh('DELETE', `/repos/${owner}/${repo}/contents/${f.path}`,
-                { message: `RdpFree: remove ${f.name} (replaced by new wallpaper)`, sha: f.sha, branch });
+                { message: `Seiji-PC: remove ${f.name} (replaced by new wallpaper)`, sha: f.sha, branch });
             }
           }
         }
@@ -303,13 +303,13 @@ async function handle(req, res) {
       let curSha = null;
       try { const cur = await gh('GET', `/repos/${owner}/${repo}/contents/${target}?ref=${branch}`); curSha = cur && cur.sha; } catch { /* new file */ }
       await gh('PUT', `/repos/${owner}/${repo}/contents/${target}`, {
-        message: `RdpFree: new wallpaper (${Math.round(buf.length / 1024)} KB, via dashboard)`,
+        message: `Seiji-PC: new wallpaper (${Math.round(buf.length / 1024)} KB, via dashboard)`,
         content: buf.toString('base64'), branch, ...(curSha ? { sha: curSha } : {}),
       });
       const { json: cfgJson, sha: cfgSha } = await readRepoFile(EXTRAS_PATH);
       const next = Object.assign({}, EXTRAS_DEFAULTS, cfgJson || {}, { wallpaper: true, wallpaper_file: `wallpaper.${ext}` });
       await gh('PUT', `/repos/${owner}/${repo}/contents/${EXTRAS_PATH}`, {
-        message: 'RdpFree: enable new wallpaper (via dashboard)',
+        message: 'Seiji-PC: enable new wallpaper (via dashboard)',
         content: Buffer.from(JSON.stringify(next, null, 2) + '\n', 'utf8').toString('base64'), branch, ...(cfgSha ? { sha: cfgSha } : {}),
       });
       return send(200, { ok: true, file: `wallpaper.${ext}`, size_kb: Math.round(buf.length / 1024) });
@@ -323,4 +323,4 @@ async function handle(req, res) {
 
 const displayHost = host === '0.0.0.0' ? 'localhost' : host;
 http.createServer(handle).listen(port, host, () =>
-  console.log(`RdpFree dashboard: http://${displayHost}:${port} (bound ${host}; repo: ${owner}/${repo})`));
+  console.log(`Seiji-PC dashboard: http://${displayHost}:${port} (bound ${host}; repo: ${owner}/${repo})`));

@@ -16,7 +16,7 @@
 #  (C:\Users\Default\NTUSER.DAT) so they activate automatically when RDP user logs in.
 # ============================================================================
 
-$XyTag = 'XyRDP:ekstra'
+$SeijiTag = 'SeijiPC:ekstra'
 . "$PSScriptRoot/lib-common.ps1"
 
 $u = if ($env:RDP_USER) { $env:RDP_USER } else { 'SeijiAdmin' }
@@ -354,7 +354,7 @@ function Set-WallpaperLive([string]$imgPath) {
 $resWall = 'skip'; $wallName = ''
 if ($cfg.wallpaper) {
   Log 'WALLPAPER: preparing image...'
-  $wpDir = 'C:\XyRDP'
+  $wpDir = 'C:\SeijiPC'
   $wpFile = $null; $srcUsed = ''
 
   # source order: workflow input -> file in repo (checkout) -> raw github

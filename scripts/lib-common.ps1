@@ -1,8 +1,8 @@
 # ============================================================================
-#  lib-common.ps1 — shared helper for all XyRDP scripts (v2: Win11-style,
+#  lib-common.ps1 — shared helper for all SeijiPC scripts (v2: Win11-style,
 #  private Tailscale access). Used by dot-sourcing:
 #
-#      $XyTag = 'XyRDP:akses'
+#      $SeijiTag = 'SeijiPC:akses'
 #      . "$PSScriptRoot/lib-common.ps1"
 #
 #  Contains: logger, registry helper, configuration reader (assets/rdp-extras.json),
@@ -15,7 +15,7 @@ try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::
 
 # ---------- log ----------
 function Log([string]$m) {
-  $tag = if ($script:XyTag) { $script:XyTag } else { 'XyRDP' }
+  $tag = if ($script:SeijiTag) { $script:SeijiTag } else { 'SeijiPC' }
   Write-Host "[$tag] $m"
 }
 
@@ -119,7 +119,7 @@ $script:XyCfgDefaults = [ordered]@{
   vscode           = $false           # optional additional IDE
   notepadpp        = $false           # optional lightweight editor
   rdp_user         = 'SeijiAdmin'        # default RDP username stored per-repo
-  debloat          = 'yes'            # remove Microsoft Edge and Mozilla Firefox only
+  debloat          = 'yes'            # yes | silent | no: remove Microsoft Edge and Mozilla Firefox only
 }
 
 function Get-CfgBool([object]$o, [string]$n, [bool]$d) {
@@ -193,9 +193,9 @@ function Update-Status([hashtable]$Pairs) {
 }
 
 # ---------- Default profile hive (settings follow RDP user on first login) ----------
-$script:DefHiveKey = 'XyRDP_Def'
-$script:DefHive    = 'HKU\XyRDP_Def'
-$script:DefReg     = 'Registry::HKEY_USERS\XyRDP_Def'
+$script:DefHiveKey = 'SeijiPC_Def'
+$script:DefHive    = 'HKU\SeijiPC_Def'
+$script:DefReg     = 'Registry::HKEY_USERS\SeijiPC_Def'
 $script:HiveLoaded = $false
 
 function Open-DefaultHive {
@@ -352,7 +352,7 @@ function Get-OutsideReach([string]$HostName, [int]$Port, [int]$TimeoutSec = 90) 
     $req = $null
     foreach ($coba in 1..3) {
       try {
-        $req = Invoke-RestMethod -Uri $u -Headers @{ 'Accept' = 'application/json'; 'User-Agent' = 'XyRDP' } -TimeoutSec 30
+        $req = Invoke-RestMethod -Uri $u -Headers @{ 'Accept' = 'application/json'; 'User-Agent' = 'SeijiPC' } -TimeoutSec 30
         if ($req.request_id) { break }
       } catch {
         # 403 = check-host rate-limits (not proof the tunnel is dead!) -> don't
@@ -370,7 +370,7 @@ function Get-OutsideReach([string]$HostName, [int]$Port, [int]$TimeoutSec = 90) 
     $deadline = (Get-Date).AddSeconds($TimeoutSec)
     Start-Sleep -Seconds 6
     while ((Get-Date) -lt $deadline) {
-      $r = Invoke-RestMethod -Uri "https://check-host.net/check-result/$rid" -Headers @{ 'Accept' = 'application/json'; 'User-Agent' = 'XyRDP' } -TimeoutSec 30
+      $r = Invoke-RestMethod -Uri "https://check-host.net/check-result/$rid" -Headers @{ 'Accept' = 'application/json'; 'User-Agent' = 'SeijiPC' } -TimeoutSec 30
       $vals = @($r.PSObject.Properties | ForEach-Object { $_.Value })
       if ($vals.Count -gt 0 -and -not ($vals | Where-Object { $null -eq $_ })) {
         $ok = 0; $all = 0
@@ -414,9 +414,9 @@ function Get-File([string]$Url, [string]$OutFile, [int]$TimeoutSec = 120) {
 # Use GITHUB_TOKEN to avoid 403 rate-limit (real runner incident:
 # shared GitHub-hosted IPs often exhausted anonymous API quota).
 function Get-GhAssetUrl([string]$Repo, [string]$NameRegex) {
-  $hdrs = @{ 'User-Agent' = 'XyRDP' }
+  $hdrs = @{ 'User-Agent' = 'SeijiPC' }
   if ($env:GITHUB_TOKEN) { $hdrs['Authorization'] = "Bearer $($env:GITHUB_TOKEN)" }
-  foreach ($h in @($hdrs, @{ 'User-Agent' = 'XyRDP' })) {
+  foreach ($h in @($hdrs, @{ 'User-Agent' = 'SeijiPC' })) {
     try {
       $rel = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest" -Headers $h -TimeoutSec 60
       $a = $rel.assets | Where-Object { $_.name -match $NameRegex } | Select-Object -First 1

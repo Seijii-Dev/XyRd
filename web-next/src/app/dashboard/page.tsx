@@ -1,2 +1,2 @@
 import Console from "./rdp-console";
-export default function Page(){return <><span className="eyebrow">Workspace / Home</span><h1>Control room.</h1><p>Run and monitor your Seiji-RMD machine from one place.</p><Console/></>}
+export default function Page(){return <><span className="eyebrow">Workspace / Home</span><h1>Control room.</h1><p>Run and monitor your Seiji-PC machine from one place.</p><Console/></>}

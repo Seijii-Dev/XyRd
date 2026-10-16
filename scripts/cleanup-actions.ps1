@@ -10,7 +10,7 @@
 #    KEEP_RUNS      — number of most recent runs to retain (default 3).
 # ============================================================================
 $ErrorActionPreference = 'Continue'
-function Log([string]$m) { Write-Host "[XyRDP:cleanup] $m" }
+function Log([string]$m) { Write-Host "[SeijiPC:cleanup] $m" }
 
 $repo = $env:GITHUB_REPOSITORY
 $wf   = $env:GH_WORKFLOW; if (-not $wf) { $wf = 'rdp-6h.yml' }
@@ -20,7 +20,7 @@ $tok  = if ($env:CLEANUP_TOKEN) { $env:CLEANUP_TOKEN } else { $env:GITHUB_TOKEN 
 if (-not $repo -or -not $tok) { Log 'repo/token unknown — skip'; exit 0 }
 
 function GH([string]$method, [string]$apiPath) {
-  $hdrs = @{ Authorization = "Bearer $tok"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'XyRDP'; 'X-GitHub-Api-Version' = '2022-11-28' }
+  $hdrs = @{ Authorization = "Bearer $tok"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'SeijiPC'; 'X-GitHub-Api-Version' = '2022-11-28' }
   try { return Invoke-RestMethod -Uri "https://api.github.com$apiPath" -Method $method -Headers $hdrs -TimeoutSec 30 }
   catch { Log "GH $method $apiPath -> $($_.Exception.Message)"; return $null }
 }
@@ -33,7 +33,7 @@ try {
   if ($list.Count -le $keep) { Log '  nothing to delete'; exit 0 }
   $old = $list | Select-Object -Skip $keep
   $n = 0
-  $hdrs = @{ Authorization = "Bearer $tok"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'XyRDP'; 'X-GitHub-Api-Version' = '2022-11-28' }
+  $hdrs = @{ Authorization = "Bearer $tok"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'SeijiPC'; 'X-GitHub-Api-Version' = '2022-11-28' }
   foreach ($r in $old) {
     # do not delete runs that are currently running (including self)
     if ($r.status -eq 'in_progress' -or $r.status -eq 'queued') { continue }

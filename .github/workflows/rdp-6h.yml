@@ -1,6 +1,6 @@
-# rdpfree-workflow-schema: 3
-# XyVerse wallpaper is automatic, using the original repository asset.
-name: RdpFree — 6-Hour RDP
+# seijipc-workflow-schema: 3
+# Seiji-PC wallpaper is automatic, using the original repository asset.
+name: Seiji-PC — 6-Hour RDP
 'on':
   workflow_dispatch:
     inputs:
@@ -32,12 +32,13 @@ name: RdpFree — 6-Hour RDP
         options:
         - tailscale
       debloat:
-        description: 'Debloat: remove Microsoft Edge and Mozilla Firefox only'
+        description: 'Debloat Edge + Firefox: yes = visible PowerShell window at first login, silent = remove automatically during setup, no = skip'
         required: false
         default: 'yes'
         type: choice
         options:
         - 'yes'
+        - silent
         - 'no'
       win11:
         description: Windows 11 appearance (hosted windows-2025 target; use self-hosted for a pinned Windows 11 machine)
@@ -83,11 +84,11 @@ permissions:
   contents: write
   actions: read
 concurrency:
-  group: xyrdp
+  group: seijipc
   cancel-in-progress: false
 jobs:
   rdp:
-    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","Windows","X64","rdpfree","windows-11"]') || 'windows-2025'
+    runs-on: ${{ inputs.runner == 'self-hosted' && fromJSON('["self-hosted","Windows","X64","seijipc","windows-11"]') || 'windows-2025'
       }}
     timeout-minutes: 360
     env:
@@ -105,7 +106,7 @@ jobs:
       KEEP_RUNS: '3'
       GITHUB_TOKEN: ${{ github.token }}
       DEBLOAT: ${{ inputs.debloat }}
-      RDPFREE_RUNNER: ${{ inputs.runner }}
+      SEIJIPC_RUNNER: ${{ inputs.runner }}
       MICROPHONE: ${{ inputs.microphone }}
     steps:
     - name: Checkout
@@ -115,14 +116,14 @@ jobs:
       shell: pwsh
       run: '$os = Get-CimInstance Win32_OperatingSystem
 
-        Write-Host "[RdpFree] OS runner : $($os.Caption) build $($os.Version)"
+        Write-Host "[SeijiPC] OS runner : $($os.Caption) build $($os.Version)"
 
-        Write-Host "[RdpFree] Initial disk space:"
+        Write-Host "[SeijiPC] Initial disk space:"
 
         Get-CimInstance Win32_LogicalDisk | ForEach-Object { Write-Host "  $($_.DeviceID) $([math]::Round($_.Size/1GB,1))GB
         total / $([math]::Round($_.FreeSpace/1GB,1))GB free" }
 
-        Write-Host "[RdpFree] Note: debloat=$env:DEBLOAT"
+        Write-Host "[SeijiPC] Note: debloat=$env:DEBLOAT"
 
         '
     - name: Basic setup (admin user + RDP 3389)

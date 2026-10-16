@@ -11,7 +11,7 @@
 param([string]$Active = 'true')
 $isActive = -not (@('false', '0', 'no', 'tidak', 'off', '') -contains ("$Active".Trim().ToLower()))
 $ErrorActionPreference = 'Continue'
-function Log([string]$m) { Write-Host "[XyRDP:status] $m" }
+function Log([string]$m) { Write-Host "[SeijiPC:status] $m" }
 
 $repo = $env:GITHUB_REPOSITORY
 # target status branch (default 'status'); can be changed via env STATUS_BRANCH
@@ -58,7 +58,7 @@ if (-not $isActive) {
 $json | ConvertTo-Json -Depth 6 | Set-Content -Path $src -Encoding utf8
 
 function GH([string]$method, [string]$apiPath, $body) {
-  $hdrs = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'XyRDP' }
+  $hdrs = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'SeijiPC' }
   try {
     $p = @{ Uri = "https://api.github.com$apiPath"; Method = $method; Headers = $hdrs }
     if ($null -ne $body) { $p.Body = ($body | ConvertTo-Json -Depth 6); $p.ContentType = 'application/json' }
@@ -78,7 +78,7 @@ try {
     Log "branch '$statusBranch' created (via API)"
   }
   $b64  = [Convert]::ToBase64String([IO.File]::ReadAllBytes($src))
-  $body = @{ message = "XyRDP status update (run $($env:GITHUB_RUN_NUMBER))"; content = $b64; branch = $statusBranch }
+  $body = @{ message = "Seiji-PC status update (run $($env:GITHUB_RUN_NUMBER))"; content = $b64; branch = $statusBranch }
   $cur  = GH 'GET' "/repos/$repo/contents/rdp-status.json?ref=$statusBranch" $null
   if ($cur -and $cur.sha) { $body.sha = $cur.sha }
   $res = GH 'PUT' "/repos/$repo/contents/rdp-status.json" $body
@@ -110,7 +110,7 @@ function Verify-PublishedAPI {
 
 if (-not (Verify-PublishedAPI) -and -not (Verify-Published)) {
   Log "verification not yet passed — attempting git push fallback..."
-  $tmp = Join-Path $env:RUNNER_TEMP ("xyrdpstatus-" + (Get-Random -Maximum 999999))
+  $tmp = Join-Path $env:RUNNER_TEMP ("seijipcstatus-" + (Get-Random -Maximum 999999))
   try {
     git init -q -b $statusBranch $tmp | Out-Null
     Copy-Item $src (Join-Path $tmp 'rdp-status.json') -Force
@@ -118,7 +118,7 @@ if (-not (Verify-PublishedAPI) -and -not (Verify-Published)) {
     git config user.name  "github-actions[bot]" | Out-Null
     git config user.email "41898282+github-actions[bot]@users.noreply.github.com" | Out-Null
     git add rdp-status.json
-    git -c commit.gpgsign=false commit -q -m "XyRDP status update" | Out-Null
+    git -c commit.gpgsign=false commit -q -m "Seiji-PC status update" | Out-Null
     $out = git -c "http.extraHeader=Authorization: Bearer $env:GITHUB_TOKEN" push --force "https://github.com/$repo.git" "HEAD:refs/heads/$statusBranch" 2>&1
     $out | ForEach-Object { Log "git: $_" }
     Pop-Location
