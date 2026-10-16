@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -8,17 +8,17 @@
   "rdp_user": "Seiji-PC",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-16T11:36:04Z",
-  "expires_at": "2026-10-16T17:31:04Z",
+  "started_at": "2026-10-16T21:28:44Z",
+  "expires_at": "2026-10-17T03:23:44Z",
   "duration_menit": 355,
-  "run_id": "38894811817",
-  "run_number": "24",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38894811817",
+  "run_id": "38969617909",
+  "run_number": "25",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/38969617909",
   "mode": "clean+win11",
   "debloat": {
-    "user": "Seiji-PC",
-    "mode": "registration-failed",
-    "error": "Cannot process argument transformation on parameter 'LogonType'. Cannot convert value \"InteractiveToken\" to type \"Microsoft.PowerShell.Cmdletization.GeneratedTypes.ScheduledTask.LogonTypeEnum\". Error: \"Unable to match the identifier name InteractiveToken to a valid enumerator name. Specify one of the following enumerator names and try again:\r\nNone, Password, S4U, Interactive, Group, ServiceAccount, InteractiveOrPassword\""
+    "firefox": "removed",
+    "mode": "silent",
+    "edge": "removed"
   },
   "xydesk": {
     "host": "ok",
@@ -37,34 +37,20 @@
     "akses": "(pending)",
     "note": "Host ready for XyDesk Remote clients in Full RDP Connection mode (Host+Port tunnel). WinStations\\RDP-Tcp keys are intentionally NOT written so the 3389 listener does not die in the GitHub runner."
   },
-  "extras": {
-    "lightshot": "skip",
-    "translucent": "ok",
-    "wallpaper": "ok",
-    "wallpaper_file": "wallpaper.jpg",
-    "vscode": "skip",
-    "notepadpp": "skip",
-    "chatgpt_codex": "ok",
-    "codex_shortcut": "ok",
-    "admin": true
-  },
   "akses": {
-    "mode": "tailscale",
     "tailscale": {
-      "status": "ok",
+      "hostname": "SeijiDesktop",
+      "magicdns": "seijidesktop-12.tail4b745d.ts.net.",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    }
+      "ip": "100.85.97.61",
+      "status": "ok"
+    },
+    "mode": "tailscale"
   },
   "media": {
-    "audio_output": "rdp_playback_enabled",
     "microphone": "disabled",
     "wallpaper": "wallpaper_configured_for_user_logon",
+    "audio_output": "rdp_playback_enabled",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
-  },
-  "heartbeat_at": "2026-10-16T17:28:46.1470037Z",
-  "stopped_at": "2026-10-16T17:29:13Z"
+  }
 }
