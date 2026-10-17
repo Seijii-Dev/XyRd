@@ -334,14 +334,7 @@ function New-ChatGPTCodexDesktopShortcut($App) {
     return $false
   }
 }
-$resCodex = 'failed'; $resCodexShortcut = 'failed'; $chatGPTApp = Find-ChatGPTApp
-if ($chatGPTApp) {
-  $resCodex = 'already present'; Log "CHATGPT CODEX: ChatGPT app already installed ($($chatGPTApp.AppID))"
-} else {
-  $chatGPTApp = Install-ChatGPTApp
-  if ($chatGPTApp) { $resCodex = 'ok' } else { Log 'CHATGPT CODEX: installation failed (non-critical; session continues)' }
-}
-if ($chatGPTApp) { $resCodexShortcut = if (New-ChatGPTCodexDesktopShortcut $chatGPTApp) { 'ok' } else { 'failed' } }
+$resCodex = 'handled-by-setup-codex'; $resCodexShortcut = 'handled-by-setup-codex'  # installed by scripts/setup-codex.ps1
 # ---------- 4. WALLPAPER ----------
 function Set-WallpaperLive([string]$imgPath) {
   try {

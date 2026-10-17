@@ -57,7 +57,7 @@ name: Seiji-PC — 6-Hour RDP
         - 'yes'
         - 'no'
       ekstra:
-        description: 'Automatic extras: wallpaper + translucent taskbar + ChatGPT Codex app with Desktop shortcut'
+        description: 'Automatic extras: wallpaper + translucent taskbar + coding extras'
         required: false
         default: 'yes'
         type: choice
@@ -65,7 +65,7 @@ name: Seiji-PC — 6-Hour RDP
         - 'yes'
         - 'no'
       codex:
-        description: 'Silent install of the real OpenAI Codex CLI (npm @openai/codex) with a Desktop shortcut'
+        description: 'Silent install of the real OpenAI Codex desktop app (Microsoft Store id 9PLM9XGG6VKS) with a Desktop shortcut'
         required: false
         default: 'yes'
         type: choice
@@ -161,7 +161,7 @@ jobs:
       continue-on-error: true
       shell: pwsh
       run: ./scripts/setup-extras.ps1
-    - name: Silent install - OpenAI Codex CLI
+    - name: Silent install - OpenAI Codex app
       if: ${{ inputs.codex != 'no' }}
       timeout-minutes: 15
       continue-on-error: true

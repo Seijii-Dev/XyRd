@@ -1,107 +1,113 @@
-# setup-codex.ps1 - silent install of the real OpenAI Codex CLI (official npm package @openai/codex).
-# Everything runs hidden/non-interactive. Sign-in (ChatGPT account) is the only manual step: run `codex` once.
-$SeijiTag = 'SeijiPC:codex'
+# setup-codex.ps1 - silent install of the real OpenAI Codex desktop app for Windows.
+# Official package: Microsoft Store product 9PLM9XGG6VKS (package family OpenAI.Codex_*).
+# NEVER install by name ("winget install Codex" resolves to an unrelated QR-reader app).
+$SeijiTag = 'SeijiPC:codex-app'
 . "$PSScriptRoot/lib-common.ps1"
 $ErrorActionPreference = 'Continue'
 $ProgressPreference = 'SilentlyContinue'
 
-$root   = 'C:\ProgramData\SeijiPC'
-$prefix = Join-Path $root 'npm'          # shared prefix so every Windows user (incl. the RDP user) can run it
-New-Item -ItemType Directory -Path $prefix -Force | Out-Null
+$StoreId = '9PLM9XGG6VKS'
+$root    = 'C:\ProgramData\SeijiPC'
+New-Item -ItemType Directory -Path $root -Force | Out-Null
+$rdpUser = if ($env:RDP_USER) { $env:RDP_USER } else { 'SeijiAdmin' }
+$result  = @{ codex_app = 'failed'; package = ''; version = ''; method = ''; shortcut = 'skip'; user_registration = 'skip' }
 
-function Refresh-Path {
-  $m = [Environment]::GetEnvironmentVariable('Path','Machine'); $u = [Environment]::GetEnvironmentVariable('Path','User')
-  $env:Path = (($m, $u) -join ';')
-}
-function Node-Major {
-  try { $v = (& node --version 2>$null); if ($v -match '^v(\d+)') { return [int]$Matches[1] } } catch {}
-  return 0
-}
-function Add-MachinePath([string]$dir) {
-  $m = [Environment]::GetEnvironmentVariable('Path','Machine')
-  if (($m -split ';') -notcontains $dir) {
-    [Environment]::SetEnvironmentVariable('Path', ($m.TrimEnd(';') + ';' + $dir), 'Machine')
+function Find-CodexPackage {
+  foreach ($all in @($true, $false)) {
+    try {
+      $p = if ($all) { Get-AppxPackage -AllUsers -Name 'OpenAI.Codex*' -ErrorAction Stop } else { Get-AppxPackage -Name 'OpenAI.Codex*' -ErrorAction Stop }
+      $p = @($p | Sort-Object Version -Descending | Select-Object -First 1)[0]
+      if ($p) { return $p }
+    } catch {}
   }
-  if (($env:Path -split ';') -notcontains $dir) { $env:Path = $env:Path.TrimEnd(';') + ';' + $dir }
-}
-function Test-Codex {
-  Refresh-Path; Add-MachinePath $prefix
-  $cmd = Join-Path $prefix 'codex.cmd'
-  if (-not (Test-Path $cmd)) { return $null }
-  try { $v = (& $cmd --version 2>&1 | Out-String).Trim(); if ($LASTEXITCODE -eq 0 -and $v -match '\d+\.\d+') { return $v } } catch {}
   return $null
 }
 
-$result = @{ codex = 'failed'; version = ''; node = ''; method = ''; shortcut = 'skip' }
+function Invoke-WingetStoreInstall([int]$TimeoutSec = 600) {
+  $w = Get-Command winget.exe -ErrorAction SilentlyContinue
+  if (-not $w) {
+    try { Add-AppxPackage -RegisterByFamilyName -MainPackage 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe' -ErrorAction Stop } catch {}
+    $w = Get-Command winget.exe -ErrorAction SilentlyContinue
+  }
+  if (-not $w) { Log '  winget is not available'; return $false }
+  $out = Join-Path $env:TEMP 'codex-winget.log'
+  $args = @('install','--id',$StoreId,'--source','msstore','--exact','--silent','--accept-source-agreements','--accept-package-agreements','--disable-interactivity')
+  $proc = Start-Process -FilePath $w.Source -ArgumentList $args -PassThru -WindowStyle Hidden -RedirectStandardOutput $out -RedirectStandardError "$out.err"
+  if (-not $proc.WaitForExit($TimeoutSec * 1000)) {
+    Log "  winget did not finish in ${TimeoutSec}s; stopping it (the Store may still be staging the package)."
+    try { $proc.Kill() } catch {}
+  } else { Log "  winget exit code: $($proc.ExitCode)" }
+  try { Log "  winget: $(Log-Tail ((Get-Content $out -Raw -ErrorAction SilentlyContinue) + ' ' + (Get-Content "$out.err" -Raw -ErrorAction SilentlyContinue)) 3)" } catch {}
+  # winget can return before the Store finishes registering the package: poll for it
+  for ($i = 0; $i -lt 24; $i++) { if (Find-CodexPackage) { return $true }; Start-Sleep -Seconds 5 }
+  return $false
+}
+
 try {
-  Log 'CODEX: silent install of the official OpenAI Codex CLI (@openai/codex)...'
-  Refresh-Path
-
-  # 1) Node.js (Codex via npm needs a recent LTS)
-  if ((Node-Major) -lt 22) {
-    Log "  Node.js missing or too old (major=$(Node-Major)); installing Node LTS silently..."
-    $installed = $false
-    if (Get-Command winget.exe -ErrorAction SilentlyContinue) {
-      & winget.exe install -e --id OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements --disable-interactivity 2>&1 | Out-Null
-      Refresh-Path; $installed = (Node-Major) -ge 22
+  Log "CODEX APP: silent install of the official OpenAI Codex app (Store id $StoreId)..."
+  $pkg = Find-CodexPackage
+  if ($pkg) {
+    $result.method = 'already present'
+    Log "  already installed: $($pkg.PackageFullName)"
+  } else {
+    foreach ($attempt in 1..2) {
+      Log "  install attempt $attempt..."
+      if (Invoke-WingetStoreInstall) { $result.method = 'winget-msstore'; break }
+      Start-Sleep -Seconds 10
     }
-    if (-not $installed -and (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
-      & choco.exe install nodejs-lts -y --no-progress 2>&1 | Out-Null
-      Refresh-Path; $installed = (Node-Major) -ge 22
-    }
-    if (-not $installed) { Log '  Node.js install did not reach v22+; will try the official PowerShell installer instead.' }
-  }
-  $result.node = (& node --version 2>$null)
-  Log "  node=$($result.node)"
-
-  # 2) Codex CLI via npm into the shared prefix
-  if ((Node-Major) -ge 22 -and (Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
-    Log '  npm install -g @openai/codex --prefix ...'
-    & npm.cmd install -g '@openai/codex@latest' --prefix $prefix --no-fund --no-audit --loglevel=error 2>&1 | Out-String | ForEach-Object { Log "  npm: $(Log-Tail $_ 2)" }
-    $v = Test-Codex
-    if (-not $v) {
-      # Known Windows issue: main + platform package must match; pin both to the same version.
-      Log '  codex did not start; pinning main + win32-x64 packages to the same version...'
-      $ver = (& npm.cmd view '@openai/codex' version 2>$null | Out-String).Trim()
-      if ($ver) {
-        & npm.cmd install -g "@openai/codex@$ver" "@openai/codex-win32-x64@npm:@openai/codex@$ver-win32-x64" --prefix $prefix --no-fund --no-audit --loglevel=error 2>&1 | Out-Null
-        $v = Test-Codex
-      }
-    }
-    if ($v) { $result.method = 'npm'; $result.version = $v }
+    $pkg = Find-CodexPackage
   }
 
-  # 3) Fallback: official OpenAI PowerShell installer (silent)
-  if (-not $result.version) {
-    Log '  falling back to the official installer (chatgpt.com/codex/install.ps1)...'
+  if ($pkg) {
+    $result.codex_app = 'ok'; $result.package = $pkg.PackageFamilyName; $result.version = [string]$pkg.Version
+    Log "CODEX APP: installed $($pkg.PackageFullName)"
+
+    # Application id from the package manifest -> AppUserModelID for shortcuts
+    $appId = 'App'
     try {
-      $tmp = Join-Path $env:TEMP 'codex-install.ps1'
-      Invoke-WebRequest -UseBasicParsing -Uri 'https://chatgpt.com/codex/install.ps1' -OutFile $tmp
-      & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File $tmp 2>&1 | Out-Null
-      Refresh-Path
-      $c = Get-Command codex -ErrorAction SilentlyContinue
-      if ($c) { $result.method = 'official-installer'; $result.version = (& codex --version 2>&1 | Out-String).Trim() }
-    } catch { Log "  official installer error: $($_.Exception.Message)" }
-  }
+      [xml]$m = Get-Content (Join-Path $pkg.InstallLocation 'AppxManifest.xml') -Raw
+      $a = @($m.Package.Applications.Application)[0]; if ($a.Id) { $appId = $a.Id }
+    } catch {}
+    $aumid = "$($pkg.PackageFamilyName)!$appId"
 
-  if ($result.version) {
-    $result.codex = 'ok'
-    Log "CODEX: installed ($($result.method)) version $($result.version)"
-    # Desktop shortcut for every user: opens PowerShell and starts codex (first run asks to sign in with ChatGPT)
+    # Public Desktop shortcut (works for every user that has the package registered)
     try {
       $desk = Join-Path $env:PUBLIC 'Desktop'; New-Item -ItemType Directory -Path $desk -Force | Out-Null
-      $sh = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $desk 'ChatGPT Codex.lnk'))
-      $sh.TargetPath = 'powershell.exe'
-      $sh.Arguments = '-NoLogo -NoExit -Command "Set-Location $HOME; codex"'
-      $sh.WorkingDirectory = $env:PUBLIC
-      $sh.Description = 'OpenAI Codex CLI - sign in with your ChatGPT account on first run'
+      $sh = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $desk 'Codex.lnk'))
+      $sh.TargetPath = Join-Path $env:WINDIR 'explorer.exe'
+      $sh.Arguments  = "shell:AppsFolder\$aumid"
+      $sh.Description = 'OpenAI Codex app - sign in with your ChatGPT account on first run'
       $sh.Save(); $result.shortcut = 'ok'
     } catch { $result.shortcut = 'failed'; Log "  shortcut failed: $($_.Exception.Message)" }
+
+    # Store apps are per-user: register the staged package for the RDP user at first logon (hidden, one-time)
+    try {
+      $reg = Join-Path $root 'Register-Codex.ps1'
+      @"
+`$pfn = '$($pkg.PackageFamilyName)'
+`$have = Get-AppxPackage -Name 'OpenAI.Codex*' -ErrorAction SilentlyContinue
+if (-not `$have) {
+  try { Add-AppxPackage -RegisterByFamilyName -MainPackage `$pfn -ErrorAction Stop } catch {}
+  `$have = Get-AppxPackage -Name 'OpenAI.Codex*' -ErrorAction SilentlyContinue
+}
+if (-not `$have -and (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
+  & winget.exe install --id $StoreId --source msstore --exact --silent --accept-source-agreements --accept-package-agreements --disable-interactivity | Out-Null
+}
+if (Get-AppxPackage -Name 'OpenAI.Codex*' -ErrorAction SilentlyContinue) { Unregister-ScheduledTask -TaskName 'SeijiPC-Codex-Register' -Confirm:`$false -ErrorAction SilentlyContinue }
+"@ | Set-Content $reg -Encoding UTF8
+      $userId = ".\$rdpUser"
+      $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$reg`""
+      $trig   = New-ScheduledTaskTrigger -AtLogOn -User $userId
+      $princ  = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Limited
+      Register-ScheduledTask -TaskName 'SeijiPC-Codex-Register' -Action $action -Trigger $trig -Principal $princ -Force | Out-Null
+      $result.user_registration = 'task-registered'
+      Log "  per-user registration task created for $userId"
+    } catch { $result.user_registration = 'failed'; Log "  per-user registration failed: $($_.Exception.Message)" }
   } else {
-    Log 'CODEX: installation failed (non-critical; session continues)'
+    Log 'CODEX APP: installation failed (non-critical; session continues). Microsoft Store access is likely unavailable on this runner; a self-hosted Windows 11 runner is more reliable.'
   }
 } catch {
-  Log "CODEX: error: $($_.Exception.Message)"
+  Log "CODEX APP: error: $($_.Exception.Message)"
 }
 Update-Status @{ codex = $result } | Out-Null
 exit 0
