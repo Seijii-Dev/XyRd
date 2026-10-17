@@ -1,24 +1,24 @@
 {
-  "active": false,
+  "active": true,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
   "os_style": "Windows 11 look",
   "rdp_port": 3389,
-  "rdp_user": "SeijiAdmin",
+  "rdp_user": "Seiji-PC",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-17T12:15:14Z",
-  "expires_at": "2026-10-17T18:10:14Z",
+  "started_at": "2026-10-17T21:52:20Z",
+  "expires_at": "2026-10-18T03:47:20Z",
   "duration_menit": 355,
-  "run_id": "39031762665",
-  "run_number": "28",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39031762665",
+  "run_id": "39072723520",
+  "run_number": "29",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39072723520",
   "mode": "clean+win11",
   "debloat": {
-    "mode": "silent",
+    "firefox": "removed",
     "edge": "removed",
-    "firefox": "removed"
+    "mode": "silent"
   },
   "xydesk": {
     "host": "ok",
@@ -37,30 +37,39 @@
     "akses": "(pending)",
     "note": "Host ready for XyDesk Remote clients in Full RDP Connection mode (Host+Port tunnel). WinStations\\RDP-Tcp keys are intentionally NOT written so the 3389 listener does not die in the GitHub runner."
   },
+  "extras": {
+    "lightshot": "skip",
+    "translucent": "ok",
+    "wallpaper": "ok",
+    "wallpaper_file": "wallpaper.jpg",
+    "vscode": "skip",
+    "notepadpp": "skip",
+    "chatgpt_codex": "handled-by-setup-codex",
+    "codex_shortcut": "handled-by-setup-codex",
+    "admin": true
+  },
   "codex": {
+    "method": "winget-msstore",
+    "user_registration": "failed",
     "shortcut": "ok",
-    "version": "codex-cli 0.163.0",
-    "method": "npm",
-    "codex": "ok",
-    "node": "v22.23.3"
+    "version": "26.1013.4894.0",
+    "package": "OpenAI.Codex_2p2nqsd0c76g0",
+    "codex_app": "ok"
   },
   "akses": {
     "tailscale": {
-      "status": "ok",
+      "magicdns": "seijidesktop-16.tail4b745d.ts.net.",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
+      "hostname": "SeijiDesktop",
+      "ip": "100.85.73.26",
+      "status": "ok"
     },
     "mode": "tailscale"
   },
   "media": {
     "audio_output": "rdp_playback_enabled",
-    "wallpaper": "wallpaper_configured_for_user_logon",
     "microphone": "rdp_capture_enabled",
+    "wallpaper": "wallpaper_configured_for_user_logon",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
-  },
-  "heartbeat_at": "2026-10-17T18:04:29.6364007Z",
-  "stopped_at": "2026-10-17T18:08:15Z"
+  }
 }
