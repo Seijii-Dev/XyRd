@@ -114,7 +114,7 @@ try {
   $actionArgs = '-NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Normal -File "' + $firstLoginScript + '"'
   $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $actionArgs
   $trigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
-  $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType InteractiveToken -RunLevel Highest
+  $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Highest
   Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Description 'One-time visible Edge and Firefox removal on the first RDP login' -Force | Out-Null
 
   Log "Debloat first-login task registered for $userId. It will open a visible PowerShell prompt at the first RDP login."

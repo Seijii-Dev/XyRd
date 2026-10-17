@@ -1,7 +1,7 @@
 import {ApiError,Context,gh} from "./api";
 import {db} from "./db";
-export const choices:Record<string,string[]>={durasi_menit:["15","30","60","120","180","240","300","330","360"],akses:["tailscale"],runner:["github","self-hosted"],microphone:["yes","no"],debloat:["yes","silent","no"],win11:["yes","no"],xydesk:["yes","no"],ekstra:["yes","no"]};
-export const defaults:Record<string,string>={durasi_menit:"360",rdp_user:"SeijiAdmin",akses:"tailscale",runner:"github",microphone:"yes",debloat:"yes",win11:"yes",xydesk:"yes",ekstra:"yes"};
+export const choices:Record<string,string[]>={durasi_menit:["15","30","60","120","180","240","300","330","360"],akses:["tailscale"],runner:["github","self-hosted"],microphone:["yes","no"],debloat:["yes","silent","no"],win11:["yes","no"],xydesk:["yes","no"],ekstra:["yes","no"],codex:["yes","no"]};
+export const defaults:Record<string,string>={durasi_menit:"360",rdp_user:"SeijiAdmin",akses:"tailscale",runner:"github",microphone:"yes",debloat:"yes",win11:"yes",xydesk:"yes",ekstra:"yes",codex:"yes"};
 export function validate(raw:Record<string,unknown>){const inputs={...defaults};for(const [k,v] of Object.entries(raw)){if(k==="wallpaper"||k==="wallpaper_url")continue;if(!(k in defaults)||typeof v!=="string")throw new ApiError(400,"Unknown parameter: "+k);inputs[k]=v;}
  for(const [k,allowed] of Object.entries(choices))if(!allowed.includes(inputs[k]))throw new ApiError(400,"Invalid choice: "+k);
   if(!/^[a-zA-Z][a-zA-Z0-9_-]{2,19}$/.test(inputs.rdp_user)||/^(administrator|guest|defaultaccount|wdagutilityaccount|system|localservice|networkservice|con|prn|aux|nul)$/i.test(inputs.rdp_user))throw new ApiError(400,"Invalid RDP username");
