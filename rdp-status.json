@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -8,16 +8,16 @@
   "rdp_user": "SeijiAdmin",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-17T11:49:40Z",
-  "expires_at": "2026-10-17T17:44:40Z",
+  "started_at": "2026-10-17T12:15:14Z",
+  "expires_at": "2026-10-17T18:10:14Z",
   "duration_menit": 355,
-  "run_id": "39030154335",
-  "run_number": "27",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39030154335",
+  "run_id": "39031762665",
+  "run_number": "28",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39031762665",
   "mode": "clean+win11",
   "debloat": {
-    "edge": "removed",
     "mode": "silent",
+    "edge": "removed",
     "firefox": "removed"
   },
   "xydesk": {
@@ -37,23 +37,27 @@
     "akses": "(pending)",
     "note": "Host ready for XyDesk Remote clients in Full RDP Connection mode (Host+Port tunnel). WinStations\\RDP-Tcp keys are intentionally NOT written so the 3389 listener does not die in the GitHub runner."
   },
+  "codex": {
+    "shortcut": "ok",
+    "version": "codex-cli 0.163.0",
+    "method": "npm",
+    "codex": "ok",
+    "node": "v22.23.3"
+  },
   "akses": {
-    "mode": "tailscale",
     "tailscale": {
-      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
+      "hostname": "SeijiDesktop",
+      "ip": "100.115.213.26",
       "status": "ok",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    }
+      "magicdns": "seijidesktop-15.tail4b745d.ts.net.",
+      "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL."
+    },
+    "mode": "tailscale"
   },
   "media": {
+    "audio_output": "rdp_playback_enabled",
     "wallpaper": "wallpaper_configured_for_user_logon",
-    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "microphone": "rdp_capture_enabled",
-    "audio_output": "rdp_playback_enabled"
-  },
-  "heartbeat_at": "2026-10-17T12:05:38.5149948Z",
-  "stopped_at": "2026-10-17T12:09:29Z"
+    "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
+  }
 }
