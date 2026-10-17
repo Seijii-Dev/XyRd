@@ -60,5 +60,5 @@
     "microphone": "rdp_capture_enabled",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture."
   },
-  "heartbeat_at": "2026-10-17T16:32:31.6316972Z"
+  "heartbeat_at": "2026-10-17T16:37:38.0710685Z"
 }
