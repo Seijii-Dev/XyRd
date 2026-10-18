@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -8,17 +8,17 @@
   "rdp_user": "Seiji-PC",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-18T05:32:11Z",
-  "expires_at": "2026-10-18T11:27:11Z",
+  "started_at": "2026-10-18T11:30:43Z",
+  "expires_at": "2026-10-18T17:25:43Z",
   "duration_menit": 355,
-  "run_id": "39100873794",
-  "run_number": "30",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39100873794",
+  "run_id": "39123509355",
+  "run_number": "31",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39123509355",
   "mode": "clean+win11",
   "debloat": {
-    "mode": "registration-failed",
-    "user": "Seiji-PC",
-    "error": "No mapping between account names and security IDs was done.\r\n\n(9,28):UserId:.\\Seiji-PC"
+    "mode": "silent",
+    "edge": "removed",
+    "firefox": "removed"
   },
   "xydesk": {
     "host": "ok",
@@ -48,31 +48,20 @@
     "codex_shortcut": "handled-by-setup-codex",
     "admin": true
   },
-  "codex": {
-    "method": "winget-msstore",
-    "codex_app": "ok",
-    "user_registration": "failed",
-    "package": "OpenAI.Codex_2p2nqsd0c76g0",
-    "shortcut": "ok",
-    "version": "26.1013.4894.0"
-  },
   "akses": {
-    "mode": "tailscale",
     "tailscale": {
+      "hostname": "SeijiDesktop",
+      "magicdns": "seijidesktop-18.tail4b745d.ts.net.",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "status": "ok",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
-    }
+      "ip": "100.117.132.56",
+      "status": "ok"
+    },
+    "mode": "tailscale"
   },
   "media": {
     "wallpaper": "wallpaper_configured_for_user_logon",
-    "microphone": "rdp_capture_enabled",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
+    "microphone": "rdp_capture_enabled",
     "audio_output": "rdp_playback_enabled"
-  },
-  "heartbeat_at": "2026-10-18T11:22:52.302248Z",
-  "stopped_at": "2026-10-18T11:25:12Z"
+  }
 }
