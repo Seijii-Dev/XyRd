@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -39,11 +39,12 @@
   },
   "akses": {
     "tailscale": {
-      "ip": "100.71.131.14",
       "status": "ok",
-      "hostname": "SeijiDesktop",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "magicdns": "seijidesktop-25.tail4b745d.ts.net."
+      "ip": "",
+      "magicdns": "",
+      "hostname": "",
+      "funnel_addr": ""
     },
     "mode": "tailscale"
   },
@@ -53,5 +54,6 @@
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "microphone": "rdp_capture_enabled"
   },
-  "heartbeat_at": "2026-10-21T19:28:09.5748285Z"
+  "heartbeat_at": "2026-10-21T19:28:09.5748285Z",
+  "stopped_at": "2026-10-21T19:31:10Z"
 }
