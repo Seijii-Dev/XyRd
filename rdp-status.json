@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -8,17 +8,17 @@
   "rdp_user": "Seiji-PC",
   "rdp_listen": ":::3389 (svchost) | 0.0.0.0:3389 (svchost) + handshake ok via 127.0.0.1",
   "rdp_denyts": true,
-  "started_at": "2026-10-21T21:07:51Z",
-  "expires_at": "2026-10-22T03:02:51Z",
+  "started_at": "2026-10-22T05:47:04Z",
+  "expires_at": "2026-10-22T11:42:04Z",
   "duration_menit": 355,
-  "run_id": "39676199899",
-  "run_number": "39",
-  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39676199899",
+  "run_id": "39729970586",
+  "run_number": "40",
+  "run_url": "https://github.com/Seijii-Dev/XyRd/actions/runs/39729970586",
   "mode": "clean+win11",
   "debloat": {
-    "mode": "silent",
     "edge": "removed",
-    "firefox": "removed"
+    "firefox": "removed",
+    "mode": "silent"
   },
   "xydesk": {
     "host": "ok",
@@ -42,18 +42,15 @@
     "tailscale": {
       "status": "ok",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "ip": "",
-      "magicdns": "",
-      "hostname": "",
-      "funnel_addr": ""
+      "ip": "100.85.227.24",
+      "magicdns": "seijidesktop-27.tail4b745d.ts.net.",
+      "hostname": "SeijiDesktop"
     }
   },
   "media": {
-    "wallpaper": "wallpaper_configured_for_user_logon",
+    "audio_output": "rdp_playback_enabled",
     "verification": "Log out and back in, enable mic in XyDesk and allow Android. Test Windows Settings > Sound > Input; policy active is not proof of end-to-end capture.",
     "microphone": "disabled",
-    "audio_output": "rdp_playback_enabled"
-  },
-  "heartbeat_at": "2026-10-22T02:56:54.1338935Z",
-  "stopped_at": "2026-10-22T03:00:52Z"
+    "wallpaper": "wallpaper_configured_for_user_logon"
+  }
 }
