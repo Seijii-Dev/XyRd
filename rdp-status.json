@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "hostname": "SeijiDesktop",
   "os": "Microsoft Windows Server 2025 Datacenter",
   "os_build": "10.0.26100",
@@ -42,9 +42,10 @@
     "tailscale": {
       "status": "ok",
       "note": "Phone/PC must be logged into Tailscale on the same tailnet. TCP 3389 must be allowed by ACL.",
-      "ip": "100.85.227.24",
-      "magicdns": "seijidesktop-27.tail4b745d.ts.net.",
-      "hostname": "SeijiDesktop"
+      "ip": "",
+      "magicdns": "",
+      "hostname": "",
+      "funnel_addr": ""
     }
   },
   "media": {
@@ -53,5 +54,6 @@
     "microphone": "disabled",
     "wallpaper": "wallpaper_configured_for_user_logon"
   },
-  "heartbeat_at": "2026-10-22T11:36:07.9350143Z"
+  "heartbeat_at": "2026-10-22T11:36:07.9350143Z",
+  "stopped_at": "2026-10-22T11:40:05Z"
 }
